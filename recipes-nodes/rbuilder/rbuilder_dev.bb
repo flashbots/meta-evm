@@ -6,7 +6,8 @@ inherit cargo_bin
 
 python () {
     import os
-    git_token = d.getVar('GIT_TOKEN') or os.getenv('GIT_TOKEN')
+    origenv = d.getVar("BB_ORIGENV", False)
+    git_token = origenv.getVar('GIT_TOKEN') or os.getenv('GIT_TOKEN')
     if not git_token:
         bb.fatal("GIT_TOKEN environment variable not set or is empty")
     else:
