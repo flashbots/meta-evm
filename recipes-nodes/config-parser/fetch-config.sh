@@ -11,13 +11,20 @@
 
 set -e
 
+# Source the configuration file
+source /etc/cloud-init-config.conf
+
 case "$1" in
   start)
     echo "Fetching configuration..."
-    curl -o /etc/config.json http://10.0.2.2:8000/config.json
-    if [ $? -eq 0 ]; then
+    if curl -o /etc/config.json "${CONFIG_URL}"; then
       echo "Configuration fetched successfully."
-      source /usr/bin/setup_env.sh
+      # Parse the config and write to a file
+      /usr/bin/config_parser.sh /etc/config.json > /etc/cloud-init-env
+      # Make the file readable only by root
+      chmod 600 /etc/cloud-init-env
+      # Source the file to set variables for this session
+      source /etc/cloud-init-env
     else
       echo "Failed to fetch configuration."
     fi
