@@ -10,7 +10,6 @@ do_compile[network] = "1"
 
 export BINDGEN_EXTRA_CLANG_ARGS
 BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/recipe-sysroot/usr/include"
-CARGO_BUILD_PROFILE = "profiling"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 SRC_URI += "file://init"
@@ -24,5 +23,5 @@ do_install:append() {
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/reth
 }
-
+TOOLCHAIN = "clang"
 RDEPENDS:${PN} += "disk-encryption config-parser"
