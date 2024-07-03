@@ -1,6 +1,6 @@
 SUMMARY = "Lighthouse"
-DESCRIPTION = "geth is the command line interface for running a full ethereum node implemented in Go."
-HOMEPAGE = "https://geth.ethereum.org"
+DESCRIPTION = "Consensus client to run on the side with the execution client"
+HOMEPAGE = "https://lighthouse.sigmaprime.io/"
 LICENSE="CLOSED"
 LIC_FILES_CHKSUM=""
 
