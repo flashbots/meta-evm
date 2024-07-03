@@ -61,3 +61,9 @@ export LDFLAGS="${LDFLAGS}"
 EOF
     chmod +x ${WORKDIR}/wrapper/rust-wrapper.sh
 }
+
+# temporary libffi fix for reth version < 1.0.0
+do_compile:prepend() {
+    cargo fetch --verbose --manifest-path ${CARGO_MANIFEST_PATH} --target=${RUST_TARGET}
+    sed -i "s;libffi = \"3.2.0\";libffi = { version = \"3.2.0\", features = [\"system\"] };g" ${CARGO_HOME}/git/checkouts/reth-36d3ea1d1152b20c/ac29b4b/crates/storage/libmdbx-rs/Cargo.toml
+}

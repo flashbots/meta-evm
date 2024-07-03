@@ -8,13 +8,8 @@ inherit cargo_bin update-rc.d
 # Enable network for the compile task allowing cargo to download dependencies
 do_compile[network] = "1"
 
-DEPENDS += "openssl"
-RDEPENDS:${PN} += "openssl reth cvm-reverse-proxy config-parser"
-
-# temporary fix to build rbuilder with libffi - host gcc means we won't get reproducibility
-export CC = "${CCACHE}${HOST_PREFIX}gcc ${HOST_CC_ARCH}${TOOLCHAIN_OPTIONS}"
-export CFLAGS = "${HOST_CFLAGS}"
-export LDFLAGS = "${HOST_LDFLAGS}"
+DEPENDS += "libffi openssl"
+RDEPENDS:${PN} += "libffi openssl reth cvm-reverse-proxy config-parser"
 
 export BINDGEN_EXTRA_CLANG_ARGS
 BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/recipe-sysroot/usr/include"
@@ -38,6 +33,4 @@ do_install:append() {
     install -m 0755 ${THISDIR}/config ${D}${sysconfdir}/rbuilder.config
     install -m 0755 ${THISDIR}/ofac.json ${D}${sysconfdir}/rbuilder.ofac.json
 }
-
-INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
-INHIBIT_PACKAGE_STRIP = "1"
+TOOLCHAIN = "clang"
