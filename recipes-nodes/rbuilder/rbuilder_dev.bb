@@ -10,7 +10,7 @@ python () {
     d.setVar('SRC_URI', f"git://github.com/flashbots/rbuilder;protocol=https")
 }
 
-SRCREV = "v0.1.0"
+SRCREV = "3915ec4d39071bed3719a385fda2a4aba7cf75c0"
 PV = "1.0+git${SRCPV}"
 
 
