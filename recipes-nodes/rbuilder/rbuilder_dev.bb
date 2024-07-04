@@ -2,10 +2,11 @@ SUMMARY = "Rust Builder"
 HOMEPAGE = "https://github.com/flashbots/rbuilder"
 LICENSE = "CLOSED"
 
-include rbuilder.inc
-
 SRC_URI = "git://github.com/flashbots/rbuilder;protocol=https;branch=main"
 SRCREV = "v0.1.0"
+
+include rbuilder.inc
+
 PV = "1.0+git${SRCPV}"
 
 # Avoid caching sensitive information
