@@ -7,10 +7,10 @@ include rbuilder.inc
 python () {
     import os
     origenv = d.getVar("BB_ORIGENV", False)
-    d.setVar('SRC_URI', f"git://github.com/flashbots/rbuilder;protocol=https;rev=v0.1.0")
+    d.setVar('SRC_URI', f"git://github.com/flashbots/rbuilder;protocol=https")
 }
 
-SRCREV = "${AUTOREV}"
+SRCREV = "v0.1.0"
 PV = "1.0+git${SRCPV}"
 
 
