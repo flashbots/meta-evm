@@ -8,6 +8,7 @@ python () {
     import os
     origenv = d.getVar("BB_ORIGENV", False)
     d.setVar('SRC_URI', f"https://github.com/flashbots/rbuilder;branch=main")
+    d.setVar('SRC_URI[sha256sum]', f"ba8befe8c83bf7340373ce132d9c8ccac308fd7551ac73849a4c6937de848e12")
 }
 
 SRCREV = "${AUTOREV}"
