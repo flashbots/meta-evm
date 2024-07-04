@@ -4,15 +4,9 @@ LICENSE = "CLOSED"
 
 include rbuilder.inc
 
-python () {
-    import os
-    origenv = d.getVar("BB_ORIGENV", False)
-    d.setVar('SRC_URI', f"git://github.com/flashbots/rbuilder;protocol=https;branch=main")
-}
-
-SRCREV = "${AUTOREV}"
+SRC_URI = "git://github.com/flashbots/rbuilder;protocol=https;branch=main"
+SRCREV = "v0.1.0"
 PV = "1.0+git${SRCPV}"
-
 
 # Avoid caching sensitive information
 BB_BASEHASH_IGNORE_VARS:append = " GIT_TOKEN"
