@@ -1,14 +1,13 @@
 #!/bin/sh
-#
+
 ### BEGIN INIT INFO
-# Provides:		rbuilder
-# Required-Start:	$remote_fs $syslog $networking reth
-# Required-Stop:	$remote_fs $syslog
-# Default-Start:	2 3 4 5
-# Default-Stop:		1
-# Short-Description:	Start and stop the rbuilder daemon
+# Provides:        rbuilder
+# Required-Start:  $remote_fs $syslog $networking reth
+# Required-Stop:   $remote_fs $syslog
+# Default-Start:   2 3 4 5
+# Default-Stop:    1
+# Short-Description: Start and stop the rbuilder daemon
 ### END INIT INFO
-#
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/bin/rbuilder
@@ -17,43 +16,62 @@ NAME=rbuilder
 DESC="Rust Builder"
 LOGFILE=/tmp/rbuilder.log
 LOGFILE_PROXY=/tmp/proxy.log
+LOGFILE_MONITOR=/tmp/rbuilder_monitor.log
 PIDFILE=/var/run/rbuilder.pid
 PIDFILE_PROXY=/var/run/proxy.pid
 
+monitor_and_restart() {
+    while true; do
+        if ! pgrep -f "$DAEMON" > /dev/null; then
+            echo "$(date): $DESC crashed. Restarting in 60 seconds..." >> ${LOGFILE_MONITOR}
+            sleep 60
+            start
+        fi
+        sleep 5
+    done
+}
+
 start_proxy() {
-	echo -n "Starting attested TLS Proxy: "
-	start-stop-daemon -S -p $PIDFILE_PROXY -N -10 -b -a /bin/sh -- -c "exec 
-		${DAEMON_PROXY} -server -target-port=8645 -listen-port=8745 \
-		2>&1 | tee ${LOGFILE_PROXY}"
-	echo "proxy."
+    echo -n "Starting attested TLS Proxy: "
+    start-stop-daemon -S -p $PIDFILE_PROXY -N -10 -b -a /bin/sh -- -c "exec 
+        ${DAEMON_PROXY} -server -target-port=8645 -listen-port=8745 \
+        2>&1 | tee ${LOGFILE_PROXY}"
+    echo "proxy."
 }
 
 start() {
-	echo -n "Starting $DESC: "
+    echo -n "Starting $DESC: "
 	# Specify the directory path you're waiting for
-	target_directory="/var/volatile/reth/static_files/"
+    target_directory="/var/volatile/reth/static_files/"
 
-	while [ ! -d "$target_directory" ]; do
-	    echo "Waiting for directory: $target_directory"
-	    sleep 1
-	done
+    while [ ! -d "$target_directory" ]; do
+        echo "Waiting for directory: $target_directory"
+        sleep 1
+    done
 
-	start-stop-daemon -S -p $PIDFILE -N -10 -b -a /bin/sh -- -c "exec 
-		RELAY_SECRET_KEY=0x4c5a4856e3873434d51de798c8e4f17ca2dcc2ccd42cb72c8446db819fe69489 \
-		OPTIMISTIC_RELAY_SECRET_KEY=0x4c5a4856e3873434d51de798c8e4f17ca2dcc2ccd42cb72c8446db819fe69489 \
-		COINBASE_SECRET_KEY=0x75b33734a847ceeb0874bf7d1f59632362c5e63e975f914cbf9d7257f2f453a8 \
-		CL_NODE_URL=http://192.168.7.1:3500 \
-		${DAEMON} run /etc/rbuilder.config \
-		2>&1 | tee ${LOGFILE}"
-	echo "$NAME."
-	start_proxy
+    start-stop-daemon -S -p $PIDFILE -N -10 -b -a /bin/sh -- -c "exec 
+        RELAY_SECRET_KEY=0x4c5a4856e3873434d51de798c8e4f17ca2dcc2ccd42cb72c8446db819fe69489 \
+        OPTIMISTIC_RELAY_SECRET_KEY=0x4c5a4856e3873434d51de798c8e4f17ca2dcc2ccd42cb72c8446db819fe69489 \
+        COINBASE_SECRET_KEY=0x75b33734a847ceeb0874bf7d1f59632362c5e63e975f914cbf9d7257f2f453a8 \
+        CL_NODE_URL=http://192.168.7.1:3500 \
+        ${DAEMON} run /etc/rbuilder.config \
+        2>&1 | tee ${LOGFILE}"
+    echo "$NAME."
+    start_proxy
+    
+    # Start the monitor in the background
+    monitor_and_restart &
 }
 
 stop() {
-	echo -n "Stopping $DESC: "
-	start-stop-daemon -K -x "$DAEMON" -p $PIDFILE
-	echo "$NAME."
+    echo -n "Stopping $DESC: "
+    start-stop-daemon -K -x "$DAEMON" -p $PIDFILE
+    echo "$NAME."
+    
+    # Kill the monitor
+    pkill -f "monitor_and_restart"
 }
+
 case "$1" in
   start)
         start
@@ -66,9 +84,10 @@ case "$1" in
         start
         ;;
   *)
-	N=/etc/init.d/$NAME
-	echo "Usage: $N {start|stop|restart|reload}" >&2
-	exit 1
-	;;
+    N=/etc/init.d/$NAME
+    echo "Usage: $N {start|stop|restart|reload}" >&2
+    exit 1
+    ;;
 esac
+
 exit 0
