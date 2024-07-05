@@ -26,7 +26,7 @@ do_install() {
     install -m 0755 ${S}/fetch-config.sh ${D}${sysconfdir}/init.d/fetch-config
 
     # Create configuration file with the URL
-    echo "CONFIG_URL=${CLOUD_INIT_CONFIG_URL}" > ${D}${sysconfdir}/cloud-init-config.conf
+    echo "export CONFIG_URL=\"${CLOUD_INIT_CONFIG_URL}\"" > ${D}${sysconfdir}/cloud-init-config.conf
 
     # Set up profile.d script to source setup_env.sh
     echo "source /usr/bin/setup_env.sh" > ${D}${sysconfdir}/profile.d/json_env_vars.sh
