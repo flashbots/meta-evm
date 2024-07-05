@@ -32,7 +32,7 @@ do_install() {
     echo "source /usr/bin/setup_env.sh" > ${D}${sysconfdir}/profile.d/json_env_vars.sh
 }
 
-RDEPENDS:${PN} += "jq curl base64"
+RDEPENDS:${PN} += "jq curl coreutils"
 
 inherit update-rc.d
 
