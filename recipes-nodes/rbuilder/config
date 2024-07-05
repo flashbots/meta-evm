@@ -18,7 +18,9 @@ optimistic_relay_secret_key = "env:OPTIMISTIC_RELAY_SECRET_KEY"
 # make sure that cl node is running on the same machine
 cl_node_url = "env:CL_NODE_URL"
 # send bundles here 
-incoming_bundles_server_port = 8645
+jsonrpc_server_port = 8645
+jsonrpc_server_ip = "127.0.0.1"
+
 el_node_ipc_path = "/tmp/reth.ipc"
 
 extra_data = "Illuminate Dmocrtz Dstrib Prtct"

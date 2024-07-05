@@ -1,26 +1,13 @@
 SUMMARY = "Rust Builder"
-HOMEPAGE = "https://github.com/flashbots/rbuilder-private"
+HOMEPAGE = "https://github.com/flashbots/rbuilder"
 LICENSE = "CLOSED"
 
 include rbuilder.inc
 
-python () {
-    import os
-    origenv = d.getVar("BB_ORIGENV", False)
-    git_token = origenv.getVar('GIT_TOKEN') or os.getenv('GIT_TOKEN')
-    if not git_token:
-        bb.note("GIT_TOKEN environment variable not set. Will set SRC_URI with ssh protocol")
-        # Set the SRC_URI with the ssh protocol
-        d.setVar('SRC_URI', f"git://git@github.com/flashbots/rbuilder-private;protocol=ssh;branch=main")
-    else:
-        bb.note("GIT_TOKEN is set")
-        # Set the SRC_URI with the token included
-        d.setVar('SRC_URI', f"git://{git_token}@github.com/flashbots/rbuilder-private.git;protocol=https;branch=main")
-}
+SRC_URI = "git://github.com/flashbots/rbuilder;protocol=https;tag=v0.1.0;branch=develop"
+SRCREV = "v0.1.0"
 
-SRCREV = "${AUTOREV}"
 PV = "1.0+git${SRCPV}"
-
 
 # Avoid caching sensitive information
 BB_BASEHASH_IGNORE_VARS:append = " GIT_TOKEN"
