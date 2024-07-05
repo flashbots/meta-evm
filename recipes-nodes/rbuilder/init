@@ -25,7 +25,7 @@ monitor_and_restart() {
         if ! pgrep -f "$DAEMON" > /dev/null; then
             echo "$(date): $DESC crashed. Restarting in 60 seconds..." >> ${LOGFILE_MONITOR}
             sleep 60
-            start
+            start_builder
         fi
         sleep 5
     done
@@ -39,6 +39,16 @@ start_proxy() {
     echo "proxy."
 }
 
+start_builder() {
+	start-stop-daemon -S -p $PIDFILE -N -10 -b -a /bin/sh -- -c "exec 
+        RELAY_SECRET_KEY=0x4c5a4856e3873434d51de798c8e4f17ca2dcc2ccd42cb72c8446db819fe69489 \
+        OPTIMISTIC_RELAY_SECRET_KEY=0x4c5a4856e3873434d51de798c8e4f17ca2dcc2ccd42cb72c8446db819fe69489 \
+        COINBASE_SECRET_KEY=0x75b33734a847ceeb0874bf7d1f59632362c5e63e975f914cbf9d7257f2f453a8 \
+        CL_NODE_URL=http://192.168.7.1:3500 \
+        ${DAEMON} run /etc/rbuilder.config \
+        2>&1 | tee ${LOGFILE}"
+}
+
 start() {
     echo -n "Starting $DESC: "
 	# Specify the directory path you're waiting for
@@ -49,13 +59,7 @@ start() {
         sleep 1
     done
 
-    start-stop-daemon -S -p $PIDFILE -N -10 -b -a /bin/sh -- -c "exec 
-        RELAY_SECRET_KEY=0x4c5a4856e3873434d51de798c8e4f17ca2dcc2ccd42cb72c8446db819fe69489 \
-        OPTIMISTIC_RELAY_SECRET_KEY=0x4c5a4856e3873434d51de798c8e4f17ca2dcc2ccd42cb72c8446db819fe69489 \
-        COINBASE_SECRET_KEY=0x75b33734a847ceeb0874bf7d1f59632362c5e63e975f914cbf9d7257f2f453a8 \
-        CL_NODE_URL=http://192.168.7.1:3500 \
-        ${DAEMON} run /etc/rbuilder.config \
-        2>&1 | tee ${LOGFILE}"
+    start_builder
     echo "$NAME."
     start_proxy
     
