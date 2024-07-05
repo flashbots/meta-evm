@@ -17,7 +17,7 @@ source /etc/cloud-init-config.conf
 case "$1" in
   start)
     echo "Fetching configuration..."
-    if curl -o /etc/config.json "${CONFIG_URL}"; then
+    if curl -H Metadata:true "${CONFIG_URL}" | base64 --decode > /etc/config.json; then
       echo "Configuration fetched successfully."
       # Parse the config and write to a file
       /usr/bin/config_parser.sh /etc/config.json > /etc/cloud-init-env

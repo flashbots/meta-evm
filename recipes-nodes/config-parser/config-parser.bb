@@ -11,7 +11,7 @@ SRC_URI = "file://config_parser.sh \
 S = "${WORKDIR}"
 
 # Default value for the config URL
-CLOUD_INIT_CONFIG_URL ?= "http://10.0.2.2:8000/config.json"
+CLOUD_INIT_CONFIG_URL ?= "http://169.254.169.254/metadata/instance/compute/userData?api-version=2021-01-01&format=text"
 
 do_install() {
     # Create necessary directories
@@ -32,7 +32,7 @@ do_install() {
     echo "source /usr/bin/setup_env.sh" > ${D}${sysconfdir}/profile.d/json_env_vars.sh
 }
 
-RDEPENDS:${PN} += "jq curl"
+RDEPENDS:${PN} += "jq curl base64"
 
 inherit update-rc.d
 
