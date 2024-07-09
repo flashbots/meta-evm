@@ -25,7 +25,7 @@ start() {
 	start-stop-daemon -S -p $PIDFILE -N -10 -b -a /bin/sh -- -c "exec ${DAEMON} \
 		node \
 		--full \
-		--datadir "/var/volatile/reth" \
+		--datadir "/persistent/reth" \
 		--authrpc.addr 0.0.0.0 \
 		--authrpc.jwtsecret "/var/volatile/jwt.hex" \
 		--authrpc.port 8551 \
