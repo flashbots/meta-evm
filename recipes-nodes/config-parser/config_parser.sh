@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Define the allowed keys
-ALLOWED_KEYS="jwtSecret builderSecretKey builderTxSigningKey BuilderBeaconEndpoints"
+ALLOWED_KEYS="JWT_SECRET RELAY_SECRET_KEY OPTIMISTIC_RELAY_SECRET_KEY COINBASE_SECRET_KEY CL_NODE_URL AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY"
 
 # Check if jq is available
 if ! command -v jq >/dev/null 2>&1; then
@@ -40,32 +40,26 @@ validate_url() {
 }
 
 # Parse JSON and export allowed keys with validation
-missing_keys=""
 for key in $ALLOWED_KEYS; do
     value=$(jq -r ".$key // empty" "$JSON_FILE")
-    if [ -z "$value" ]; then
-        missing_keys="$missing_keys $key"
-    else
+    if [ -n "$value" ]; then
         case "$key" in
-            jwtSecret|builderSecretKey|builderTxSigningKey)
+            JWT_SECRET|RELAY_SECRET_KEY|OPTIMISTIC_RELAY_SECRET_KEY|COINBASE_SECRET_KEY)
                 if ! validate_hex "$value"; then
                     echo "Error: Invalid format for $key. Expected 0x followed by hex characters." >&2
                     exit 1
                 fi
                 ;;
-            BuilderBeaconEndpoints)
+            CL_NODE_URL)
                 if ! validate_url "$value"; then
                     echo "Error: Invalid format for $key. Expected http:// or https:// URL." >&2
                     exit 1
                 fi
                 ;;
+            AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY)
+                # No specific validation for these keys
+                ;;
         esac
         echo "export $key='$value'"
     fi
 done
-
-# Check if any keys are missing
-if [ -n "$missing_keys" ]; then
-    echo "Error: Missing required keys:$missing_keys" >&2
-    exit 1
-fi
