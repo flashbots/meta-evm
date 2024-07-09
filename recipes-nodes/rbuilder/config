@@ -1,13 +1,14 @@
 log_json = true
 log_level = "info,rbuilder=debug,rbuilder::live_builder::building::relay_submit=trace"
 
-telemetry_port = 6069
+telemetry_ip = "127.0.0.1"
+telemetry_port = 6071
 
 error_storage_path = "/tmp/rbuilder_errors.sqlite"
 
-chain = "holesky"
-reth_db_path = "/var/volatile/reth/db"
-reth_static_files_path = "/var/volatile/reth/static_files"
+chain = "mainnet"
+reth_db_path = "/persistent/reth/db"
+reth_static_files_path = "/persistent/reth/static_files"
 
 root_hash_task_pool_threads = 4
 
@@ -16,7 +17,7 @@ coinbase_secret_key = "env:COINBASE_SECRET_KEY"
 optimistic_relay_secret_key = "env:OPTIMISTIC_RELAY_SECRET_KEY"
 
 # make sure that cl node is running on the same machine
-cl_node_url = "env:CL_NODE_URL"
+cl_node_url = ["env:CL_NODE_URL"]
 # send bundles here 
 jsonrpc_server_port = 8645
 jsonrpc_server_ip = "127.0.0.1"
@@ -27,7 +28,7 @@ extra_data = "Illuminate Dmocrtz Dstrib Prtct"
 
 blocklist_file_path = "/etc/rbuilder.ofac.json"
 
-dry_run = true
+dry_run = false
 dry_run_validation_url = ["http://127.0.0.1:8545"]
 optimistic_enabled = false
 
@@ -43,7 +44,7 @@ simulation_threads = 4
 
 [[relays]]
 name = "flashbots"
-url = "https://0xafa4c6985aa049fb79dd37010438cfebeb0f2bd42b115b89dd678dab0670c1de38da0c4e9138c9290a398ecd9a0b3110@boost-relay-holesky.flashbots.net"
+url = "https://0xac6e77dfe25ecd6110b8e780608cce0dab71fdd5ebea22a16c0205200f2f8e2e3ad3b71d3499c54ad14d6c21b41a37ae@boost-relay.flashbots.net"
 use_ssz_for_submit = true
 use_gzip_for_submit = false
 priority = 0

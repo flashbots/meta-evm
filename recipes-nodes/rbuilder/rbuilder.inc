@@ -9,7 +9,7 @@ inherit cargo_bin update-rc.d
 do_compile[network] = "1"
 
 DEPENDS += "libffi openssl"
-RDEPENDS:${PN} += "libffi openssl reth cvm-reverse-proxy config-parser"
+RDEPENDS:${PN} += "libffi openssl reth cvm-reverse-proxy config-parser date-sync"
 
 export BINDGEN_EXTRA_CLANG_ARGS
 BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/recipe-sysroot/usr/include"
