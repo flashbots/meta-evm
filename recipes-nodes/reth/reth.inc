@@ -24,4 +24,4 @@ do_install:append() {
     install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/reth
 }
 TOOLCHAIN = "clang"
-RDEPENDS:${PN} += "disk-encryption config-parser"
+RDEPENDS:${PN} += "disk-encryption config-parser date-sync"
