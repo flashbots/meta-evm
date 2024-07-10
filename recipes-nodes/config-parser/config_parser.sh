@@ -25,25 +25,43 @@ fi
 
 # Function to validate hex string
 validate_hex() {
-    case "$1" in
-        0x[0-9a-fA-F]*) return 0 ;;
-        *) return 1 ;;
-    esac
-}
+    if expr match "$1" "^0x[a-fA-F0-9]*$" >/dev/null
+    then
+        return 0
+    fi
 
-validate_alphanumeric() {
-    case "$1" in
-        [0-9a-zA-Z]*) return 0 ;;
-        *) return 1 ;;
-    esac
+    return 1
 }
 
 # Function to validate URL
 validate_url() {
-    case "$1" in
-        \'http://*\'|\'https://*\') return 0 ;;
-        *) return 1 ;;
-    esac
+    echo $1
+    if expr match "$1" "^'\?https\?://.*'\?$" >/dev/null
+    then
+        return 0
+    fi
+
+    return 1
+}
+
+# Function to validate AWS Access Key ID (32 characters: A-Z, 0-9)
+validate_aws_access_key_id() {
+    if expr match "$1" "^[a-z0-9]\{32\}$" >/dev/null
+    then
+        return 0
+    fi
+
+    return 1
+}
+
+# Function to validate AWS Secret Access Key (64 characters: A-Za-z0-9+/=)
+validate_aws_secret_access_key() {
+    if expr match "$1" "^[a-z0-9]\{64\}$" >/dev/null
+    then
+        return 0
+    fi
+
+    return 1
 }
 
 # Parse JSON and export allowed keys with validation
@@ -63,9 +81,15 @@ for key in $ALLOWED_KEYS; do
                     exit 1
                 fi
                 ;;
-            AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY)
-                if ! validate_alphanumeric "$value"; then
-                    echo "Error: Invalid format for $key. Expected alphanumeric." >&2
+            AWS_ACCESS_KEY_ID)
+                if ! validate_aws_access_key_id "$value"; then
+                    echo "Error: Invalid format for $key. Expected 32 characters: a-z, 0-9." >&2
+                    exit 1
+                fi
+                ;;
+            AWS_SECRET_ACCESS_KEY)
+                if ! validate_aws_secret_access_key "$value"; then
+                    echo "Error: Invalid format for $key. Expected 64 characters: a-z0-9." >&2
                     exit 1
                 fi
                 ;;
