@@ -31,17 +31,24 @@ validate_hex() {
     esac
 }
 
+validate_alphanumeric() {
+    case "$1" in
+        [0-9a-zA-Z]*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
 # Function to validate URL
 validate_url() {
     case "$1" in
-        http://*|https://*) return 0 ;;
+        \'http://*\'|\'https://*\') return 0 ;;
         *) return 1 ;;
     esac
 }
 
 # Parse JSON and export allowed keys with validation
 for key in $ALLOWED_KEYS; do
-    value=$(jq -r ".$key // empty" "$JSON_FILE")
+    value=$(jq -r ".$key // empty" "$JSON_FILE" | xargs printf "%q")
     if [ -n "$value" ]; then
         case "$key" in
             JWT_SECRET|RELAY_SECRET_KEY|OPTIMISTIC_RELAY_SECRET_KEY|COINBASE_SECRET_KEY)
@@ -57,9 +64,12 @@ for key in $ALLOWED_KEYS; do
                 fi
                 ;;
             AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY)
-                # No specific validation for these keys
+                if ! validate_alphanumeric "$value"; then
+                    echo "Error: Invalid format for $key. Expected alphanumeric." >&2
+                    exit 1
+                fi
                 ;;
         esac
-        echo "export $key='$value'"
+        echo "export $key=$value"
     fi
 done
