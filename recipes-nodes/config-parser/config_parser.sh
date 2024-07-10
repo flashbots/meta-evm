@@ -35,7 +35,6 @@ validate_hex() {
 
 # Function to validate URL
 validate_url() {
-    echo $1
     if expr match "$1" "^'\?https\?://.*'\?$" >/dev/null
     then
         return 0
