@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Define the allowed keys
-ALLOWED_KEYS="JWT_SECRET RELAY_SECRET_KEY OPTIMISTIC_RELAY_SECRET_KEY COINBASE_SECRET_KEY CL_NODE_URL AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY"
+ALLOWED_KEYS="JWT_SECRET RELAY_SECRET_KEY OPTIMISTIC_RELAY_SECRET_KEY COINBASE_SECRET_KEY CL_NODE_URL AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY RCLONE_S3_ENDPOINT"
 
 # Check if jq is available
 if ! command -v jq >/dev/null 2>&1; then
@@ -57,7 +57,7 @@ for key in $ALLOWED_KEYS; do
                     exit 1
                 fi
                 ;;
-            CL_NODE_URL)
+            CL_NODE_URL|RCLONE_S3_ENDPOINT)
                 if ! validate_url "$value"; then
                     echo "Error: Invalid format for $key. Expected http:// or https:// URL." >&2
                     exit 1
