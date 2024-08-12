@@ -24,4 +24,23 @@ do_install:append() {
     install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/reth
 }
 TOOLCHAIN = "clang"
-RDEPENDS:${PN} += "disk-encryption config-parser date-sync reth-sync"
+RDEPENDS:${PN} += "disk-encryption config-parser"
+
+python () {
+    # Check if INCLUDE_RCLONE is set in the environment or in local.conf
+    include_rclone = d.getVar('INCLUDE_RCLONE')
+    
+    if include_rclone is None:
+        # If not set, check the original environment
+        origenv = d.getVar("BB_ORIGENV", False)
+        if origenv:
+            include_rclone = origenv.getVar('INCLUDE_RCLONE')
+    
+    if include_rclone:
+        # If INCLUDE_RCLONE is set (to any non-empty value), keep its value
+        d.setVar('INCLUDE_RCLONE', include_rclone)
+    else:
+        # If INCLUDE_RCLONE is not set, set it to '1' by default
+        d.setVar('INCLUDE_RCLONE', '1')
+}
+RDEPENDS:${PN} += "${@'reth-sync' if d.getVar('INCLUDE_RCLONE') == '1' else ''}"

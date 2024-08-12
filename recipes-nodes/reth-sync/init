@@ -21,6 +21,12 @@ start() {
 	# fetch the env variables that contains the amazon s3 credentials and the endpoint
 	source /usr/bin/setup_env.sh
 
+	# Exit if RCLONE_S3_ENDPOINT env variable is not set without syncing
+	if [ -z "$RCLONE_S3_ENDPOINT" ]; then
+		echo "RCLONE_S3_ENDPOINT is not set. Exiting without syncing state from a remote storage."
+		exit 0
+	fi
+
     LATEST_META=$(rclone --config $RCLONE_CONFIG cat r2:chain-db-snapshots/reth-mainnet-full/latest_version.meta.txt)
     rclone sync --config $RCLONE_CONFIG -v -P --transfers=20 --multi-thread-streams 30 \
 	--contimeout=10m --retries 10 --retries-sleep 60 --error-on-no-transfer --update --fast-list \
