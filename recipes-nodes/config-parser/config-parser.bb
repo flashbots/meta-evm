@@ -10,8 +10,23 @@ SRC_URI = "file://config_parser.sh \
 
 S = "${WORKDIR}"
 
-# Default value for the config URL
-CLOUD_INIT_CONFIG_URL ?= "http://169.254.169.254/metadata/instance/compute/userData?api-version=2021-01-01&format=text"
+python () {
+    # Check if CLOUD_INIT_CONFIG_URL is set in the environment or in local.conf
+    cloud_init_config_url = d.getVar('CLOUD_INIT_CONFIG_URL')
+    
+    if cloud_init_config_url is None:
+        # If not set, check the original environment
+        origenv = d.getVar("BB_ORIGENV", False)
+        if origenv:
+            cloud_init_config_url = origenv.getVar('CLOUD_INIT_CONFIG_URL')
+    
+    if cloud_init_config_url:
+        # If CLOUD_INIT_CONFIG_URL is set (to any non-empty value), keep its value
+        d.setVar('CLOUD_INIT_CONFIG_URL', cloud_init_config_url)
+    else:
+        # If CLOUD_INIT_CONFIG_URL is not set, set it to Azures default cloud-init URL
+        d.setVar('CLOUD_INIT_CONFIG_URL', 'http://169.254.169.254/metadata/instance/compute/userData?api-version=2021-01-01&format=text')
+}
 
 do_install() {
     # Create necessary directories
