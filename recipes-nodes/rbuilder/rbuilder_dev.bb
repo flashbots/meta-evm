@@ -4,8 +4,8 @@ LICENSE = "CLOSED"
 
 include rbuilder.inc
 
-SRC_URI = "git://github.com/flashbots/rbuilder;protocol=https;tag=v0.1.0;branch=develop"
-SRCREV = "v0.1.0"
+SRC_URI = "git://github.com/flashbots/rbuilder;protocol=https;branch=develop"
+SRCREV = "18875a4d62606290dfaebfa900cc91738fb08832"
 
 PV = "1.0+git${SRCPV}"
 
