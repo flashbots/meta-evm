@@ -11,7 +11,7 @@ INITSCRIPT_PARAMS = "defaults 96"
 inherit update-rc.d useradd
 
 USERADD_PACKAGES = "${PN}"
-USERADD_PARAM:${PN} = "-r -s /bin/false -U reth"
+USERADD_PARAM:${PN} = "-r -s /bin/false -G eth reth"
 
 do_install() {
     install -d ${D}${sysconfdir}/init.d
@@ -20,8 +20,10 @@ do_install() {
     
     # Create directory for reth data
     install -d ${D}/persistent/reth
-    chown reth:reth ${D}/persistent/reth
+    chown reth:eth ${D}/persistent/reth
+    chmod 0740 ${D}/persistent/reth
 }
 
-RDEPENDS:${PN} += "rclone"
+DEPENDS += "eth-group"
+RDEPENDS:${PN} += "rclone eth-group"
 FILES:${PN} += "/persistent/reth"

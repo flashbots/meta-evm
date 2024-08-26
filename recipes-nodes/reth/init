@@ -16,7 +16,7 @@ DESC="Reth Node"
 PIDFILE=/var/run/reth.pid
 LOGFILE=/tmp/reth.log
 RETH_USER=reth
-RETH_GROUP=reth
+ETH_GROUP=eth
 RETH_DIR=/persistent/reth
 
 start() {
@@ -28,15 +28,15 @@ start() {
 
 	# Ensure the RETH_DIR exists and has correct permissions
 	mkdir -p $RETH_DIR
-	chown $RETH_USER:$RETH_GROUP $RETH_DIR
+	chown $RETH_USER:$ETH_GROUP $RETH_DIR
 
 	# Set JWT_SECRET, use environment variable if set, otherwise use hardcoded value
 	JWT_SECRET=${JWT_SECRET:-"0x4c5a4856e3873434d51de798c8e4f17ca2dcc2ccd42cb72c8446db819fe69489"}
 
 	mount -o remount,size=90% /var/volatile
 	echo "$JWT_SECRET" > /var/volatile/jwt.hex
-	chown ${RETH_USER}:${RETH_GROUP} /var/volatile/jwt.hex
-	start-stop-daemon -S -p $PIDFILE -c $RETH_USER:$RETH_GROUP -N -10 -b -a /bin/sh -- -c "exec ${DAEMON} \
+	chown ${RETH_USER}:${ETH_GROUP} /var/volatile/jwt.hex
+	start-stop-daemon -S -p $PIDFILE -c $RETH_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec ${DAEMON} \
 		node \
 		--full \
 		--datadir "$RETH_DIR" \

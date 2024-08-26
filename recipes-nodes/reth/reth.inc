@@ -19,7 +19,7 @@ INITSCRIPT_PARAMS = "defaults 98"
 S = "${WORKDIR}/git"
 
 USERADD_PACKAGES = "${PN}"
-USERADD_PARAM:${PN} = "-r -s /bin/false -U reth"
+USERADD_PARAM:${PN} = "-r -s /bin/false -G eth reth"
 
 do_install:append() {
     install -d ${D}${bindir}
@@ -28,12 +28,14 @@ do_install:append() {
     
     # Create directory for reth data
     install -d ${D}/persistent/reth
-    chown reth:reth ${D}/persistent/reth
+    chown reth:eth ${D}/persistent/reth
+    chmod 0740 ${D}/persistent/reth
 }
 
 FILES:${PN} += "/persistent/reth"
 TOOLCHAIN = "clang"
-RDEPENDS:${PN} += "disk-encryption config-parser"
+DEPENDS += "eth-group"
+RDEPENDS:${PN} += "disk-encryption config-parser eth-group"
 
 python () {
     # Check if INCLUDE_RCLONE is set in the environment or in local.conf
