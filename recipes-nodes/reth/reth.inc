@@ -1,9 +1,9 @@
 SUMMARY = "Reth"
 DESCRIPTION = "reth is the command line interface for running a full ethereum node implemented in rust."
-LICENSE="CLOSED"
-LIC_FILES_CHKSUM=""
+LICENSE = "CLOSED"
+LIC_FILES_CHKSUM = ""
 
-inherit cargo_bin update-rc.d
+inherit cargo_bin update-rc.d useradd
 
 # Enable network for the compile task allowing cargo to download dependencies
 do_compile[network] = "1"
@@ -18,11 +18,20 @@ INITSCRIPT_PARAMS = "defaults 98"
 
 S = "${WORKDIR}/git"
 
+USERADD_PACKAGES = "${PN}"
+USERADD_PARAM:${PN} = "-r -s /bin/false -U reth"
+
 do_install:append() {
     install -d ${D}${bindir}
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/reth
+    
+    # Create directory for reth data
+    install -d ${D}/persistent/reth
+    chown reth:reth ${D}/persistent/reth
 }
+
+FILES:${PN} += "/persistent/reth"
 TOOLCHAIN = "clang"
 RDEPENDS:${PN} += "disk-encryption config-parser"
 
