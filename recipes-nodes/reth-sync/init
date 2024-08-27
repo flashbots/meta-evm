@@ -44,6 +44,16 @@ start() {
     --exclude 'files.txt' r2:chain-db-snapshots/reth-mainnet-full/\$LATEST_META/ $RETH_DIR
 	" >> $LOGFILE 2>&1
 
+	# Ensure the RETH_DIR and all subdirectories have correct permissions
+	chown -R $RETH_USER:$ETH_GROUP $RETH_DIR
+	# A hack to allow rbuilder's user to access reth via group permissions
+	chmod 770 $RETH_DIR
+	chmod 770 $RETH_DIR/static_files
+	chmod 770 $RETH_DIR/db
+	chmod 660 $RETH_DIR/db/mdbx.lck
+	chmod 660 $RETH_DIR/db/mdbx.dat
+	chmod 660 /tmp/reth.ipc
+
 	echo "Reth is synced with the latest meta version: $LATEST_META"
 	echo "$NAME."
 }

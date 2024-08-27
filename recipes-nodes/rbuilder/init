@@ -1,5 +1,4 @@
 #!/bin/sh
-
 ### BEGIN INIT INFO
 # Provides:        rbuilder
 # Required-Start:  $remote_fs $syslog $networking reth
@@ -65,7 +64,7 @@ start() {
     start_proxy
     
     # Start the monitor in the background
-    su - $RBUILDER_USER -s /bin/sh -c "$(declare -f monitor_and_restart); monitor_and_restart" &
+    monitor_and_restart &
 }
 
 stop() {

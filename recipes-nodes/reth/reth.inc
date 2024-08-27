@@ -29,7 +29,7 @@ do_install:append() {
     # Create directory for reth data
     install -d ${D}/persistent/reth
     chown reth:eth ${D}/persistent/reth
-    chmod 0740 ${D}/persistent/reth
+    chmod 0770 ${D}/persistent/reth
 }
 
 FILES:${PN} += "/persistent/reth"
