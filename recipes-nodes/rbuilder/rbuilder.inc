@@ -3,13 +3,13 @@ DESCRIPTION = "Rust builder running with a full ethereum node (reth) implemented
 LICENSE="CLOSED"
 LIC_FILES_CHKSUM=""
 
-inherit cargo_bin update-rc.d
+inherit cargo_bin update-rc.d useradd
 
 # Enable network for the compile task allowing cargo to download dependencies
 do_compile[network] = "1"
 
-DEPENDS += "libffi openssl"
-RDEPENDS:${PN} += "libffi openssl reth cvm-reverse-proxy config-parser date-sync"
+DEPENDS += "libffi openssl eth-group"
+RDEPENDS:${PN} += "libffi openssl eth-group reth cvm-reverse-proxy config-parser"
 
 export BINDGEN_EXTRA_CLANG_ARGS
 BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/recipe-sysroot/usr/include"
@@ -27,10 +27,19 @@ FILES:${PN} += "${sysconfdir}/init.d/rbuilder"
 FILES:${PN} += "${sysconfdir}/rbuilder.config"
 FILES:${PN} += "${sysconfdir}/rbuilder.ofac.json"
 
+USERADD_PACKAGES = "${PN}"
+USERADD_PARAM:${PN} = "-r -s /bin/false -G eth rbuilder"
+
 do_install:append() {
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/rbuilder
-    install -m 0755 ${THISDIR}/config ${D}${sysconfdir}/rbuilder.config
-    install -m 0755 ${THISDIR}/ofac.json ${D}${sysconfdir}/rbuilder.ofac.json
+    
+    # Install config files owned by root, readable by rbuilder
+    install -m 0744 ${THISDIR}/config ${D}${sysconfdir}/rbuilder.config
+    install -m 0744 ${THISDIR}/ofac.json ${D}${sysconfdir}/rbuilder.ofac.json
+
+    # Ensure rbuilder can read these files
+    chgrp rbuilder ${D}${sysconfdir}/rbuilder.config
+    chgrp rbuilder ${D}${sysconfdir}/rbuilder.ofac.json
 }
 TOOLCHAIN = "clang"

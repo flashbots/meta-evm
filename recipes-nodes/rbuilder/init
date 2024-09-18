@@ -1,5 +1,4 @@
 #!/bin/sh
-
 ### BEGIN INIT INFO
 # Provides:        rbuilder
 # Required-Start:  $remote_fs $syslog $networking reth
@@ -19,6 +18,10 @@ LOGFILE_PROXY=/tmp/proxy.log
 LOGFILE_MONITOR=/tmp/rbuilder_monitor.log
 PIDFILE=/var/run/rbuilder.pid
 PIDFILE_PROXY=/var/run/proxy.pid
+RBUILDER_USER=rbuilder
+ETH_GROUP=eth
+RETH_DIR=/persistent/reth
+RETH_USER=reth
 
 monitor_and_restart() {
     while true; do
@@ -43,20 +46,23 @@ start_builder() {
     # fetch the env variables that contains the secrets for the rbuilder
 	source /usr/bin/setup_env.sh
     
-	start-stop-daemon -S -p $PIDFILE -N -10 -b -a /bin/sh -- -c "exec 
+    start-stop-daemon -S -p $PIDFILE -c $RBUILDER_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec 
         ${DAEMON} run /etc/rbuilder.config \
         2>&1 | tee ${LOGFILE}"
 }
 
 start() {
     echo -n "Starting $DESC: "
-	# Specify the directory path you're waiting for
-    target_directory="/persistent/reth/static_files/"
 
-    while [ ! -d "$target_directory" ]; do
-        echo "Waiting for directory: $target_directory"
-        sleep 1
-    done
+    # Ensure the RETH_DIR and all subdirectories have correct permissions
+    chown -R $RETH_USER:$ETH_GROUP $RETH_DIR
+    # A hack to allow rbuilder's user to access reth via group permissions
+    chmod 770 $RETH_DIR
+    chmod 770 $RETH_DIR/static_files
+    chmod 770 $RETH_DIR/db
+    chmod 660 $RETH_DIR/db/mdbx.lck
+    chmod 660 $RETH_DIR/db/mdbx.dat
+    chmod 660 /tmp/reth.ipc
 
     start_builder
     echo "$NAME."
