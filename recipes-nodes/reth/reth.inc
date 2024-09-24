@@ -35,7 +35,7 @@ do_install:append() {
 FILES:${PN} += "/persistent/reth"
 TOOLCHAIN = "clang"
 DEPENDS += "eth-group"
-RDEPENDS:${PN} += "disk-encryption config-parser eth-group"
+RDEPENDS:${PN} += "disk-encryption config-parser eth-group lighthouse"
 
 python () {
     # Check if INCLUDE_RCLONE is set in the environment or in local.conf

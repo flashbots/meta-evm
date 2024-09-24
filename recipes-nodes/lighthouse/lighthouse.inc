@@ -5,10 +5,26 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=139bc4b5f578ecacea78dc7b7ad3ed3c"
 
 # Inherit the cargo_bin class to handle Rust/Cargo builds
-inherit cargo_bin
+# Inherit the update-rc.d class to install the service as a system service
+# Inherit the useradd class to create a system user for the lighthouse service
+inherit cargo_bin update-rc.d useradd
 
 # Define dependencies
-DEPENDS += "openssl-native zlib-native postgresql"
+DEPENDS += "openssl-native zlib-native postgresql eth-group"
+
+# Add the eth-group runtime dependency
+RDEPENDS:${PN} += "disk-encryption config-parser eth-group"
+
+# Add the useradd task to create a system user for the lighthouse service
+USERADD_PACKAGES = "${PN}"
+USERADD_PARAM:${PN} = "-r -s /bin/false -G eth lighthouse"
+
+# Add the init script to the source URI
+SRC_URI += "file://init"
+# Set the name of the init script
+INITSCRIPT_NAME = "lighthouse"
+# Set the init script parameters (run at boot time with default priority at order level 95)
+INITSCRIPT_PARAMS = "defaults 95"
 
 # Set the source directory
 S = "${WORKDIR}/git"
@@ -99,7 +115,21 @@ do_install() {
     install -d ${D}${bindir}
     # Install the lighthouse binary
     install -m 755 ${B}/${CARGO_TARGET_SUBDIR}/lighthouse ${D}${bindir}/lighthouse
+    # Create the init script directory in the target root filesystem
+    install -d ${D}${sysconfdir}/init.d
+    # Install the init script
+    install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/lighthouse
+
+    # Create directory for lighthouse data and set permissions
+    install -d ${D}/persistent/lighthouse
+    chown lighthouse:eth ${D}/persistent/lighthouse
+    chmod 0770 ${D}/persistent/lighthouse
 }
 
 # Ensure do_install task is re-run if CARGO_TARGET_SUBDIR changes
 do_install[vardeps] += "CARGO_TARGET_SUBDIR"
+
+# Define the files to be included in the package
+FILES:${PN} += "/persistent/lighthouse"
+FILES:${PN} += "${bindir}/lighthouse"
+FILES:${PN} += "${sysconfdir}/init.d/lighthouse"
