@@ -18,6 +18,7 @@ LOGFILE_PROXY=/var/log/proxy.log
 LOGFILE_MONITOR=/var/log/rbuilder_monitor.log
 PIDFILE=/var/run/rbuilder.pid
 PIDFILE_PROXY=/var/run/proxy.pid
+PIDFILE_MONITOR=/var/run/rbuilder_monitor.pid
 RBUILDER_USER=rbuilder
 ETH_GROUP=eth
 RETH_DIR=/persistent/reth
@@ -36,7 +37,7 @@ monitor_and_restart() {
 
 start_proxy() {
     echo -n "Starting attested TLS Proxy: "
-    start-stop-daemon -S -p $PIDFILE_PROXY -N -10 -b -a /bin/sh -- -c "exec 
+    start-stop-daemon -S --make-pidfile -p $PIDFILE_PROXY -N -10 -b -a /bin/sh -- -c "exec
         ${DAEMON_PROXY} -server -target-port=8645 -listen-port=8745 \
         2>&1 | tee ${LOGFILE_PROXY}"
     echo "proxy."
@@ -46,7 +47,7 @@ start_builder() {
     # fetch the env variables that contains the secrets for the rbuilder
 	source /usr/bin/setup_env.sh
     
-    start-stop-daemon -S -p $PIDFILE -c $RBUILDER_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec 
+    start-stop-daemon -S --make-pidfile -p $PIDFILE -c $RBUILDER_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec
         ${DAEMON} run /etc/rbuilder.config \
         2>&1 | tee ${LOGFILE}"
 }
@@ -64,21 +65,53 @@ start() {
     chmod 660 $RETH_DIR/db/mdbx.dat
     chmod 660 /tmp/reth.ipc
 
+    # Ensure the rbuilder log file exists and has correct permissions
+    touch $LOGFILE
+    chown $RBUILDER_USER:$ETH_GROUP $LOGFILE
+
     start_builder
     echo "$NAME."
     start_proxy
-    
+
     # Start the monitor in the background
     monitor_and_restart &
+    echo $! > $PIDFILE_MONITOR
 }
 
 stop() {
-    echo -n "Stopping $DESC: "
-    start-stop-daemon -K -x "$DAEMON" -p $PIDFILE
-    echo "$NAME."
-    
-    # Kill the monitor
-    pkill -f "monitor_and_restart"
+    local services="rbuilder proxy monitor"
+    for service in $services; do
+        local pidfile_var="PIDFILE"
+        [ "$service" = "proxy" ] && pidfile_var="PIDFILE_PROXY"
+        [ "$service" = "monitor" ] && pidfile_var="PIDFILE_MONITOR"
+
+        local pidfile=$(eval echo \$$pidfile_var)
+
+        echo "Stopping $service"
+        if [ -f "$pidfile" ]; then
+            local pid=$(cat "$pidfile")
+            local pids="$pid $(pgrep -P $pid)"
+
+            # Send SIGTERM to all processes
+            kill -TERM $pids 2>/dev/null
+
+            # Wait for processes to terminate
+            for i in $(seq 1 5); do
+                if ! kill -0 $pids 2>/dev/null; then
+                    break
+                fi
+                sleep 1
+            done
+
+            # Send SIGKILL to any remaining processes
+            kill -KILL $pids 2>/dev/null
+
+            rm -f "$pidfile"
+            echo "$service stopped"
+        else
+            echo "$pidfile not found, $service may not be running"
+        fi
+    done
 }
 
 case "$1" in

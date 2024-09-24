@@ -26,6 +26,10 @@ start() {
 		source /usr/bin/setup_env.sh
 	fi
 
+	# Ensure the reth log file exists and has correct permissions
+  	touch $LOGFILE
+  	chown $RETH_USER:$ETH_GROUP $LOGFILE
+
 	# Ensure the RETH_DIR exists and has correct permissions
 	mkdir -p $RETH_DIR
 	chown $RETH_USER:$ETH_GROUP $RETH_DIR
@@ -36,7 +40,7 @@ start() {
 	mount -o remount,size=90% /var/volatile
 	echo "$JWT_SECRET" > /var/volatile/jwt.hex
 	chown ${RETH_USER}:${ETH_GROUP} /var/volatile/jwt.hex
-	start-stop-daemon -S -p $PIDFILE -c $RETH_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec ${DAEMON} \
+	start-stop-daemon -S --make-pidfile -p $PIDFILE -c $RETH_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec ${DAEMON} \
 		node \
 		--full \
 		--datadir "$RETH_DIR" \
@@ -58,10 +62,29 @@ start() {
 }
 
 stop() {
-	echo -n "Stopping $DESC: "
-	start-stop-daemon -K -x "$DAEMON" -p $PIDFILE
-	echo "$NAME."
+    echo "Stopping $NAME"
+    if [ -f $PIDFILE ]; then
+        PID=$(cat $PIDFILE)
+        # Find all child processes of the shell process
+        PIDS="$PID $(pgrep -P $PID)"
+
+        # Send SIGTERM to all processes
+        for pid in $PIDS; do
+            kill -TERM $pid 2>/dev/null
+        done
+
+        # Send SIGKILL to any remaining processes
+        for pid in $PIDS; do
+            kill -KILL $pid 2>/dev/null
+        done
+
+        rm -f $PIDFILE
+    else
+        echo "$PIDFILE not found, $NAME may not be running"
+    fi
+    echo "$NAME stopped"
 }
+
 case "$1" in
   start)
         start
