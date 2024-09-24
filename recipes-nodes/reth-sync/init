@@ -12,7 +12,7 @@
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Rclone Sync Service"
 NAME=reth-sync
-LOGFILE=/tmp/reth-sync.log
+LOGFILE=/var/log/reth-sync.log
 RCLONE_CONFIG=/etc/rclone.conf
 RETH_DIR=/persistent/reth
 RETH_USER=reth
