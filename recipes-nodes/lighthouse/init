@@ -31,10 +31,14 @@ start() {
 	# Set JWT_SECRET, use environment variable if set, otherwise use hardcoded value
 	JWT_SECRET=${JWT_SECRET:-"0x4c5a4856e3873434d51de798c8e4f17ca2dcc2ccd42cb72c8446db819fe69489"}
 
+	# Ensure the lighthouse log exists and has correct permissions
+	touch $LOGFILE
+	chown $LIGHTHOUSE_USER:$ETH_GROUP $LOGFILE
+
 	mount -o remount,size=90% /var/volatile
 	echo "$JWT_SECRET" > /var/volatile/jwt.hex
 	chown ${LIGHTHOUSE_USER}:${ETH_GROUP} /var/volatile/jwt.hex
-	start-stop-daemon -S -p $PIDFILE -c $LIGHTHOUSE_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec ${DAEMON} \
+	start-stop-daemon -S --make-pidfile -p $PIDFILE -c $LIGHTHOUSE_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec ${DAEMON} \
 		bn \
 		--eth1 \
 		--checkpoint-sync-url https://mainnet.checkpoint.sigp.io \
@@ -54,10 +58,29 @@ start() {
 }
 
 stop() {
-	echo -n "Stopping $DESC: "
-	start-stop-daemon -K -x "$DAEMON" -p $PIDFILE
-	echo "$NAME."
+    echo "Stopping $NAME"
+    if [ -f $PIDFILE ]; then
+        PID=$(cat $PIDFILE)
+        # Find all child processes of the shell process
+        PIDS="$PID $(pgrep -P $PID)"
+
+        # Send SIGTERM to all processes
+        for pid in $PIDS; do
+            kill -TERM $pid 2>/dev/null
+        done
+
+        # Send SIGKILL to any remaining processes
+        for pid in $PIDS; do
+            kill -KILL $pid 2>/dev/null
+        done
+
+        rm -f $PIDFILE
+    else
+        echo "$PIDFILE not found, $NAME may not be running"
+    fi
+    echo "$NAME stopped"
 }
+
 case "$1" in
   start)
         start
