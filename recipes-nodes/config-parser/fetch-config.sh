@@ -2,32 +2,38 @@
 ### BEGIN INIT INFO
 # Provides:          fetch-config
 # Required-Start:    $network
-# Required-Stop:     
+# Required-Stop:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Fetch configuration JSON file
-# Description:       Fetch configuration JSON file and set up environment variables
+# Short-Description: Fetch init configuration JSON file
+# Description:       Fetch configuration JSON file and render the templates of the services
 ### END INIT INFO
 
 set -e
 
-# Source the configuration file
-source /etc/cloud-init-config.conf
+source /etc/init-config.conf
+
+INIT_CONFIG_FILE="/etc/init-config.json"
+TEMPLATED_CONFIG_FILES=(
+  /etc/td-agent-bit/td-agent-bit.conf
+  /etc/process-exporter/process-exporter.yaml
+  /etc/prometheus/prometheus.yml
+)
 
 case "$1" in
   start)
     echo "Fetching configuration..."
-    if curl -H Metadata:true "${CONFIG_URL}" | base64 --decode > /etc/config.json; then
-      echo "Configuration fetched successfully."
-      # Parse the config and write to a file
-      /usr/bin/config_parser.sh /etc/config.json > /etc/cloud-init-env
-      # Make the file readable only by root
-      chmod 600 /etc/cloud-init-env
-      # Source the file to set variables for this session
-      source /etc/cloud-init-env
-    else
+    (umask 0177 && touch "${INIT_CONFIG_FILE}")
+    curl -fsSL --proxy http://localhost:7937 --retry 3 --retry-delay 60 --retry-connrefused \
+      -H "Metadata: true" -o "${INIT_CONFIG_FILE}" "${INIT_CONFIG_URL}"
+    if [ ! -s "${INIT_CONFIG_FILE}" ]; then
       echo "Failed to fetch configuration."
+      exit 1
     fi
+    for file in "${TEMPLATED_CONFIG_FILES[@]}"; do
+      /usr/bin/render-config.sh "${INIT_CONFIG_FILE}" "${file}.mustache" > "${file}"
+    done
+    rm -f "${INIT_CONFIG_FILE}"
     ;;
   stop)
     echo "Nothing to stop."
@@ -36,15 +42,8 @@ case "$1" in
     $0 stop
     $0 start
     ;;
-  status)
-    if [ -f /etc/config.json ]; then
-      echo "Configuration file exists."
-    else
-      echo "Configuration file does not exist."
-    fi
-    ;;
   *)
-    echo "Usage: $0 {start|stop|restart|status}"
+    echo "Usage: $0 {start|stop|restart}"
     exit 1
     ;;
 esac
