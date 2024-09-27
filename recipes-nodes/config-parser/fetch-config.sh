@@ -24,7 +24,7 @@ case "$1" in
   start)
     echo "Fetching configuration..."
     (umask 0177 && touch "${INIT_CONFIG_FILE}")
-    curl -fsSL --proxy http://localhost:8080 --retry 3 --retry-delay 60 --retry-connrefused \
+    curl -fsSL --proxy http://localhost:7937 --retry 3 --retry-delay 60 --retry-connrefused \
       -H "Metadata: true" -o "${INIT_CONFIG_FILE}" "${INIT_CONFIG_URL}"
     if [ ! -s "${INIT_CONFIG_FILE}" ]; then
       echo "Failed to fetch configuration."
