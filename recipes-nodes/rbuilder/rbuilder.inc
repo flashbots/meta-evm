@@ -9,7 +9,7 @@ inherit cargo_bin update-rc.d useradd
 do_compile[network] = "1"
 
 DEPENDS += "libffi openssl eth-group"
-RDEPENDS:${PN} += "libffi openssl eth-group reth cvm-reverse-proxy config-parser"
+RDEPENDS:${PN} += "libffi openssl eth-group reth cvm-reverse-proxy render-config"
 
 export BINDGEN_EXTRA_CLANG_ARGS
 BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/recipe-sysroot/usr/include"
