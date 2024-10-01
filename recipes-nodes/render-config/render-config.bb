@@ -24,7 +24,7 @@ python () {
         d.setVar('INIT_CONFIG_URL', init_config_url)
     else:
         # If INIT_CONFIG_URL is not set, set it to default hub-atls.builder.flashbots.net 
-        d.setVar('INIT_CONFIG_URL', 'http://hub-atls.builder.flashbots.net')
+        d.setVar('INIT_CONFIG_URL', 'https://hub-atls.builder.flashbots.net')
 }
 
 do_install() {
