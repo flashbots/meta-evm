@@ -1,7 +1,10 @@
 #!/bin/sh
 # Renders a mustache template using the provided JSON input configuration
 # Usage: render_configs.sh <input_config> <template_file>
-set -e -o pipefail
+set -e
+if (set -o pipefail 2>/dev/null); then
+  set -o pipefail
+fi
 export LC_ALL=C
 
 INPUT_CONFIG=$1

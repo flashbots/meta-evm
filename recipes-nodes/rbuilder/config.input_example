@@ -1,0 +1,7 @@
+{
+  "rbuilder": {
+    "relay_secret_key": "relay_key",
+    "coinbase_secret_key": "coinbase_key",
+    "optimistic_relay_secret_key": "optimistic_relay_key"
+  }
+}

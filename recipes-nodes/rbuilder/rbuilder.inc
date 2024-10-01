@@ -16,14 +16,15 @@ BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/rec
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 SRC_URI += "file://init"
-SRC_URI += "file://config"
+SRC_URI += "file://config.mustache"
 SRC_URI += "file://ofac.json"
 S = "${WORKDIR}/git"
 
 INITSCRIPT_NAME = "rbuilder"
-INITSCRIPT_PARAMS = "defaults 99" 
+INITSCRIPT_PARAMS = "defaults 99"
 
 FILES:${PN} += "${sysconfdir}/init.d/rbuilder"
+FILES:${PN} += "${sysconfdir}/rbuilder.config.mustache"
 FILES:${PN} += "${sysconfdir}/rbuilder.config"
 FILES:${PN} += "${sysconfdir}/rbuilder.ofac.json"
 
@@ -33,10 +34,11 @@ USERADD_PARAM:${PN} = "-r -s /bin/false -G eth rbuilder"
 do_install:append() {
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/rbuilder
-    
+
     # Install config files owned by root, readable by rbuilder
-    install -m 0744 ${THISDIR}/config ${D}${sysconfdir}/rbuilder.config
-    install -m 0744 ${THISDIR}/ofac.json ${D}${sysconfdir}/rbuilder.ofac.json
+    install -m 0644 ${THISDIR}/config.mustache ${D}${sysconfdir}/rbuilder.config.mustache
+    install -m 0640 ${THISDIR}/config.mustache ${D}${sysconfdir}/rbuilder.config
+    install -m 0644 ${THISDIR}/ofac.json ${D}${sysconfdir}/rbuilder.ofac.json
 
     # Ensure rbuilder can read these files
     chgrp rbuilder ${D}${sysconfdir}/rbuilder.config
