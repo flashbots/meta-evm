@@ -4,7 +4,8 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/:"
-SRC_URI = file://render-config.sh"
+SRC_URI = "file://render-config.sh \
+           file://fetch-config.sh"
 
 S = "${WORKDIR}"
 
@@ -21,6 +22,9 @@ python () {
     if init_config_url:
         # If INIT_CONFIG_URL is set (to any non-empty value), keep its value
         d.setVar('INIT_CONFIG_URL', init_config_url)
+    else:
+        # If INIT_CONFIG_URL is not set, set it to default hub-atls.builder.flashbots.net 
+        d.setVar('INIT_CONFIG_URL', 'https://hub-atls.builder.flashbots.net')
 }
 
 do_install() {
@@ -28,7 +32,6 @@ do_install() {
     install -d ${D}${bindir}
     install -d ${D}${sysconfdir}
     install -d ${D}${sysconfdir}/init.d
-    install -d ${D}${sysconfdir}/profile.d
 
     # Install scripts
     install -m 0755 ${S}/render-config.sh ${D}${bindir}
