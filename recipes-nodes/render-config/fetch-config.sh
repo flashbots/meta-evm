@@ -14,12 +14,7 @@ set -e
 source /etc/init-config.conf
 
 INIT_CONFIG_FILE="/etc/init-config.json"
-TEMPLATED_CONFIG_FILES=(
-  /etc/td-agent-bit/td-agent-bit.conf
-  /etc/process-exporter/process-exporter.yaml
-  /etc/prometheus/prometheus.yml
-  /etc/rbuilder.config
-)
+TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporter/process-exporter.yaml /etc/prometheus/prometheus.yml /etc/rbuilder.config"
 
 case "$1" in
   start)
@@ -31,7 +26,7 @@ case "$1" in
       echo "Failed to fetch configuration."
       exit 1
     fi
-    for file in "${TEMPLATED_CONFIG_FILES[@]}"; do
+    for file in $TEMPLATED_CONFIG_FILES; do
       /usr/bin/render-config.sh "${INIT_CONFIG_FILE}" "${file}.mustache" > "${file}"
     done
     rm -f "${INIT_CONFIG_FILE}"
