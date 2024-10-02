@@ -18,6 +18,7 @@ TEMPLATED_CONFIG_FILES=(
   /etc/td-agent-bit/td-agent-bit.conf
   /etc/process-exporter/process-exporter.yaml
   /etc/prometheus/prometheus.yml
+  /etc/rbuilder.config
 )
 
 case "$1" in
