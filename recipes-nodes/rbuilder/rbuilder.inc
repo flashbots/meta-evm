@@ -41,7 +41,7 @@ do_install:append() {
     install -m 0644 ${THISDIR}/ofac.json ${D}${sysconfdir}/rbuilder.ofac.json
 
     # Ensure rbuilder can read these files
-    chgrp rbuilder ${D}${sysconfdir}/rbuilder.config
-    chgrp rbuilder ${D}${sysconfdir}/rbuilder.ofac.json
+    chown rbuilder:rbuilder ${D}${sysconfdir}/rbuilder.config
+    chown rbuilder:rbuilder ${D}${sysconfdir}/rbuilder.ofac.json
 }
 TOOLCHAIN = "clang"

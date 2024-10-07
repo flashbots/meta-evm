@@ -32,7 +32,7 @@ start() {
 	mount -o remount,size=90% /var/volatile
 
 	# Generate a random JWT secret and save it to the file
-	openssl rand -hex 32 | tr -d "\n" | tee $JWT_SECRET_FILE
+	openssl rand -hex 32 | tr -d "\n" | tee $JWT_SECRET_FILE > /dev/null
 	chown ${LIGHTHOUSE_USER}:${ETH_GROUP} $JWT_SECRET_FILE
 	chmod 640 $JWT_SECRET_FILE
 
