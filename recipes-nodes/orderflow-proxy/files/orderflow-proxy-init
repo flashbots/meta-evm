@@ -1,0 +1,55 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          orderflow-proxy
+# Required-Start:    $network $remote_fs $syslog
+# Required-Stop:     $network $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start Orderflow Proxy at boot time
+# Description:       Enable Orderflow Proxy service.
+### END INIT INFO
+
+DAEMON=/usr/bin/orderflow-proxy
+NAME=orderflow-proxy
+DESC="Orderflow Proxy"
+DAEMON_ARGS="--users-listen-addr=0.0.0.0:443 --network-listen-addr=0.0.0.0:5544 --cert-listen-addr=127.0.0.1:14727 --builder-endpoint=http://127.0.0.1:8546"
+PIDFILE=/var/run/$NAME.pid
+LOGFILE=/var/log/$NAME.log
+
+start() {
+    echo -n "Starting $DESC: "
+    start-stop-daemon -S --make-pidfile -p $PIDFILE -m -b -a $DAEMON -- $DAEMON_ARGS > $LOGFILE 2>&1
+    echo "$NAME."
+}
+
+stop() {
+    echo -n "Stopping $DESC: "
+    start-stop-daemon --stop --quiet --pidfile $PIDFILE
+    rm -f $PIDFILE
+    echo "$NAME."
+}
+
+restart() {
+    echo "Restarting $DESC: "
+    stop
+    sleep 1
+    start
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart|force-reload)
+        restart
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|force-reload}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
