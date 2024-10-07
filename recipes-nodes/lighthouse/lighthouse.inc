@@ -13,7 +13,7 @@ inherit cargo_bin update-rc.d useradd
 DEPENDS += "openssl-native zlib-native postgresql eth-group"
 
 # Add the eth-group runtime dependency
-RDEPENDS:${PN} += "disk-encryption render-config eth-group"
+RDEPENDS:${PN} += "disk-encryption render-config eth-group cvm-reverse-proxy-server cvm-reverse-proxy-client"
 
 # Add the useradd task to create a system user for the lighthouse service
 USERADD_PACKAGES = "${PN}"

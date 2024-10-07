@@ -20,14 +20,6 @@ ETH_GROUP=eth
 
 start() {
 	echo -n "Starting $DESC: "
-	# fetch the env variables that contains the amazon s3 credentials and the endpoint
-	source /usr/bin/setup_env.sh
-
-	# Exit if RCLONE_S3_ENDPOINT env variable is not set without syncing
-	if [ -z "$RCLONE_S3_ENDPOINT" ]; then
-		echo "RCLONE_S3_ENDPOINT is not set. Exiting without syncing state from a remote storage."
-		exit 0
-	fi
 
   # Ensure the reth-sync log file exists and has correct permissions
   touch $LOGFILE
@@ -36,6 +28,8 @@ start() {
   # Ensure the RETH_DIR exists and has correct permissions
   mkdir -p $RETH_DIR
   chown $RETH_USER:$ETH_GROUP $RETH_DIR
+
+  # TODO run the rclone command as specified here https://snapshots.flashbots.dev/ without relying on RCLONE CONFIG and AWS credentials
 
   # Run the sync process as the reth user
 	su - $RETH_USER -s /bin/sh -c "
