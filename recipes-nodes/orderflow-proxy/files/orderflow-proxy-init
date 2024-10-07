@@ -12,7 +12,7 @@
 DAEMON=/usr/bin/orderflow-proxy
 NAME=orderflow-proxy
 DESC="Orderflow Proxy"
-DAEMON_ARGS="--users-listen-addr=0.0.0.0:443 --network-listen-addr=0.0.0.0:5544 --cert-listen-addr=127.0.0.1:14727 --builder-endpoint=http://127.0.0.1:8546"
+DAEMON_ARGS="--users-listen-addr=0.0.0.0:443 --network-listen-addr=0.0.0.0:5544 --cert-listen-addr=127.0.0.1:14727 --builder-endpoint=http://127.0.0.1:8645"
 PIDFILE=/var/run/$NAME.pid
 LOGFILE=/var/log/$NAME.log
 
