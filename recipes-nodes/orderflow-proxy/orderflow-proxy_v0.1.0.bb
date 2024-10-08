@@ -1,5 +1,5 @@
 SUMMARY = "Orderflow Proxy"
-HOMEPAGE = "https://github.com/flashbots/orderflow-proxy"
+HOMEPAGE = "https://github.com/flashbots/tdx-orderflow-proxy"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://src/${GO_WORKDIR}/LICENSE;md5=c7bc88e866836b5160340e6c3b1aaa10"
 
@@ -8,7 +8,7 @@ inherit go-mod update-rc.d
 INITSCRIPT_NAME = "orderflow-proxy-init"
 INITSCRIPT_PARAMS = "defaults 99"
 
-GO_IMPORT = "github.com/flashbots/orderflow-proxy"
+GO_IMPORT = "github.com/flashbots/tdx-orderflow-proxy"
 SRC_URI = "git://${GO_IMPORT};protocol=https;branch=main \
            file://orderflow-proxy-init"
 SRCREV = "v0.1.0"
