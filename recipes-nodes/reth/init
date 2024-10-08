@@ -29,7 +29,7 @@ start() {
 
 	# Ensure the RETH_DIR exists and has correct permissions
 	mkdir -p $RETH_DIR
-	chown $RETH_USER:$ETH_GROUP $RETH_DIR
+	chown -R $RETH_USER:$ETH_GROUP $RETH_DIR
 
 	# Check if the JWT_SECRET_FILE exists and exit with a message if it doesn't
 	if [ ! -f $JWT_SECRET_FILE ]; then
