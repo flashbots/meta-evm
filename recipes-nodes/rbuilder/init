@@ -10,14 +10,11 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/bin/rbuilder
-DAEMON_PROXY=/usr/bin/cvm-reverse-proxy
 NAME=rbuilder
 DESC="Rust Builder"
 LOGFILE=/var/log/rbuilder.log
-LOGFILE_PROXY=/var/log/proxy.log
 LOGFILE_MONITOR=/var/log/rbuilder_monitor.log
 PIDFILE=/var/run/rbuilder.pid
-PIDFILE_PROXY=/var/run/proxy.pid
 PIDFILE_MONITOR=/var/run/rbuilder_monitor.pid
 RBUILDER_USER=rbuilder
 ETH_GROUP=eth
@@ -35,18 +32,7 @@ monitor_and_restart() {
     done
 }
 
-start_proxy() {
-    echo -n "Starting attested TLS Proxy: "
-    start-stop-daemon -S --make-pidfile -p $PIDFILE_PROXY -N -10 -b -a /bin/sh -- -c "exec
-        ${DAEMON_PROXY} -server -target-port=8645 -listen-port=8745 \
-        2>&1 | tee ${LOGFILE_PROXY}"
-    echo "proxy."
-}
-
 start_builder() {
-    # fetch the env variables that contains the secrets for the rbuilder
-	source /usr/bin/setup_env.sh
-    
     start-stop-daemon -S --make-pidfile -p $PIDFILE -c $RBUILDER_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec
         ${DAEMON} run /etc/rbuilder.config \
         2>&1 | tee ${LOGFILE}"
@@ -71,7 +57,6 @@ start() {
 
     start_builder
     echo "$NAME."
-    start_proxy
 
     # Start the monitor in the background
     monitor_and_restart &
@@ -79,10 +64,9 @@ start() {
 }
 
 stop() {
-    local services="rbuilder proxy monitor"
+    local services="rbuilder monitor"
     for service in $services; do
         local pidfile_var="PIDFILE"
-        [ "$service" = "proxy" ] && pidfile_var="PIDFILE_PROXY"
         [ "$service" = "monitor" ] && pidfile_var="PIDFILE_MONITOR"
 
         local pidfile=$(eval echo \$$pidfile_var)

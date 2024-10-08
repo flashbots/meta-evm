@@ -18,47 +18,48 @@ RETH_DIR=/persistent/reth
 RETH_USER=reth
 ETH_GROUP=eth
 
-start() {
-	echo -n "Starting $DESC: "
-	# fetch the env variables that contains the amazon s3 credentials and the endpoint
-	source /usr/bin/setup_env.sh
-
-	# Exit if RCLONE_S3_ENDPOINT env variable is not set without syncing
-	if [ -z "$RCLONE_S3_ENDPOINT" ]; then
-		echo "RCLONE_S3_ENDPOINT is not set. Exiting without syncing state from a remote storage."
-		exit 0
-	fi
-
-  # Ensure the reth-sync log file exists and has correct permissions
-  touch $LOGFILE
-  chown $RETH_USER:$ETH_GROUP $LOGFILE
-
-  # Ensure the RETH_DIR exists and has correct permissions
-  mkdir -p $RETH_DIR
-  chown $RETH_USER:$ETH_GROUP $RETH_DIR
-
-  # Run the sync process as the reth user
-	su - $RETH_USER -s /bin/sh -c "
-    set -x  # This will print each command as it's executed
-    LATEST_META=\$(rclone --config $RCLONE_CONFIG cat r2:chain-db-snapshots/reth-mainnet-full/latest_version.meta.txt)
-    echo \"Latest meta: \$LATEST_META\"
-    rclone sync --config $RCLONE_CONFIG -v -P --transfers=20 --multi-thread-streams 30 \
-    --contimeout=10m --retries 10 --retries-sleep 60 --error-on-no-transfer --update --fast-list \
-    --delete-during --disable-http2 --no-gzip-encoding \
-    --exclude 'files.txt' r2:chain-db-snapshots/reth-mainnet-full/\$LATEST_META/ $RETH_DIR
-	echo \"Reth is synced with the latest meta version: $LATEST_META\"
-	" >> $LOGFILE 2>&1
+log() {
+    echo "$(date): $1" >> "$LOGFILE"
 }
 
+start() {
+    log "Starting $DESC"
+
+    # Ensure the reth-sync log file exists and has correct permissions
+    touch "$LOGFILE"
+    chown "$RETH_USER:$ETH_GROUP" "$LOGFILE"
+
+    # Ensure the RETH_DIR exists and has correct permissions
+    mkdir -p "$RETH_DIR"
+    chown "$RETH_USER:$ETH_GROUP" "$RETH_DIR"
+
+    # Run the sync process as the reth user
+    BASE_SNAPSHOT_URL="https://snapshots.flashbots.dev/reth-mainnet-full"
+    LATEST_VERSION=$(rclone copyurl "$BASE_SNAPSHOT_URL/latest_version.meta.txt" - 2>> "$LOGFILE")
+    log "Latest version: $LATEST_VERSION"
+
+    rclone copyurl "$BASE_SNAPSHOT_URL/$LATEST_VERSION/files.txt" files.txt >> "$LOGFILE" 2>&1
+
+    log "Starting rclone copy"
+    rclone copy --progress --transfers 20 --multi-thread-streams 30 \
+        --http-url "$BASE_SNAPSHOT_URL/$LATEST_VERSION" --no-traverse --http-no-head \
+        --disable-http2 --inplace --no-gzip-encoding --size-only --retries 6 \
+        --retries-sleep 10s --files-from files.txt :http: "$RETH_DIR" >> "$LOGFILE" 2>&1
+
+    rm files.txt
+    log "Reth is synced with the latest meta version: $LATEST_VERSION"
+
+    chown -R "$RETH_USER:$ETH_GROUP" "$RETH_DIR"
+}
 
 case "$1" in
-  start)
-        start > $LOGFILE 2>&1
+    start)
+        start
         ;;
-  *)
-	N=/etc/init.d/$NAME
-	echo "Usage: $N start" >&2
-	exit 1
-	;;
+    *)
+        echo "Usage: $0 start" >&2
+        exit 1
+        ;;
 esac
+
 exit 0

@@ -14,7 +14,7 @@ BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/rec
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 SRC_URI += "file://init"
 INITSCRIPT_NAME = "reth"
-INITSCRIPT_PARAMS = "defaults 98"
+INITSCRIPT_PARAMS = "defaults 97"
 
 S = "${WORKDIR}/git"
 
@@ -35,7 +35,7 @@ do_install:append() {
 FILES:${PN} += "/persistent/reth"
 TOOLCHAIN = "clang"
 DEPENDS += "eth-group"
-RDEPENDS:${PN} += "disk-encryption render-config eth-group lighthouse"
+RDEPENDS:${PN} += "disk-encryption render-config eth-group lighthouse cvm-reverse-proxy-server cvm-reverse-proxy-client"
 
 python () {
     # Check if INCLUDE_RCLONE is set in the environment or in local.conf

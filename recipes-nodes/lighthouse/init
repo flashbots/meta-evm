@@ -19,31 +19,29 @@ LIGHTHOUSE_USER=lighthouse
 ETH_GROUP=eth
 LIGHTHOUSE_DIR=/persistent/lighthouse
 SUGGESTED_FEE_RECIPIENT=0x000000000000000000000000000000000000dead
+JWT_SECRET_FILE=/var/volatile/jwt.hex
 
 start() {
 	echo -n "Starting $DESC: "
-	# Source the setup.env file
-	if [ -f /usr/bin/setup_env.sh ]; then
-		source /usr/bin/setup_env.sh
-	fi
-
-	# TODO: Either fetch the JWT SECRET from the secret service or randomly generate it and use it in both lighthouse and reth
-	# Set JWT_SECRET, use environment variable if set, otherwise use hardcoded value
-	JWT_SECRET=${JWT_SECRET:-"0x4c5a4856e3873434d51de798c8e4f17ca2dcc2ccd42cb72c8446db819fe69489"}
 
 	# Ensure the lighthouse log exists and has correct permissions
 	touch $LOGFILE
 	chown $LIGHTHOUSE_USER:$ETH_GROUP $LOGFILE
 
+	# Remount /var/volatile with increased size
 	mount -o remount,size=90% /var/volatile
-	echo "$JWT_SECRET" > /var/volatile/jwt.hex
-	chown ${LIGHTHOUSE_USER}:${ETH_GROUP} /var/volatile/jwt.hex
+
+	# Generate a random JWT secret and save it to the file
+	openssl rand -hex 32 | tr -d "\n" | tee $JWT_SECRET_FILE > /dev/null
+	chown ${LIGHTHOUSE_USER}:${ETH_GROUP} $JWT_SECRET_FILE
+	chmod 640 $JWT_SECRET_FILE
+
 	start-stop-daemon -S --make-pidfile -p $PIDFILE -c $LIGHTHOUSE_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec ${DAEMON} \
 		bn \
 		--eth1 \
 		--checkpoint-sync-url https://mainnet.checkpoint.sigp.io \
 		--execution-endpoint http://localhost:8551 \
-		--execution-jwt /var/volatile/jwt.hex \
+		--execution-jwt $JWT_SECRET_FILE \
 		--suggested-fee-recipient ${SUGGESTED_FEE_RECIPIENT} \
 		--http-allow-sync-stalled \
 		--always-prepare-payload \
