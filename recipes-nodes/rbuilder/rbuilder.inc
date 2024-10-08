@@ -9,7 +9,7 @@ inherit cargo_bin update-rc.d useradd
 do_compile[network] = "1"
 
 DEPENDS += "libffi openssl eth-group"
-RDEPENDS:${PN} += "libffi openssl eth-group reth cvm-reverse-proxy render-config"
+RDEPENDS:${PN} += "libffi openssl eth-group reth cvm-reverse-proxy-server cvm-reverse-proxy-client render-config"
 
 export BINDGEN_EXTRA_CLANG_ARGS
 BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/recipe-sysroot/usr/include"
@@ -21,7 +21,7 @@ SRC_URI += "file://ofac.json"
 S = "${WORKDIR}/git"
 
 INITSCRIPT_NAME = "rbuilder"
-INITSCRIPT_PARAMS = "defaults 99"
+INITSCRIPT_PARAMS = "defaults 98"
 
 FILES:${PN} += "${sysconfdir}/init.d/rbuilder"
 FILES:${PN} += "${sysconfdir}/rbuilder.config.mustache"
@@ -41,7 +41,7 @@ do_install:append() {
     install -m 0644 ${THISDIR}/ofac.json ${D}${sysconfdir}/rbuilder.ofac.json
 
     # Ensure rbuilder can read these files
-    chgrp rbuilder ${D}${sysconfdir}/rbuilder.config
-    chgrp rbuilder ${D}${sysconfdir}/rbuilder.ofac.json
+    chown rbuilder:rbuilder ${D}${sysconfdir}/rbuilder.config
+    chown rbuilder:rbuilder ${D}${sysconfdir}/rbuilder.ofac.json
 }
 TOOLCHAIN = "clang"
