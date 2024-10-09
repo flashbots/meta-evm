@@ -40,6 +40,7 @@ start_builder() {
 
 start() {
     echo -n "Starting $DESC: "
+    echo "Starting $DESC" > /var/volatile/system-api.fifo
 
     # Ensure the RETH_DIR and all subdirectories have correct permissions
     chown -R $RETH_USER:$ETH_GROUP $RETH_DIR
@@ -64,6 +65,7 @@ start() {
 }
 
 stop() {
+    echo "Stopping $DESC" > /var/volatile/system-api.fifo
     local services="rbuilder monitor"
     for service in $services; do
         local pidfile_var="PIDFILE"
