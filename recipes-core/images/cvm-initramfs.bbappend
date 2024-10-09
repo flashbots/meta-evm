@@ -1,1 +1,1 @@
-PACKAGE_INSTALL:append = " rbuilder orderflow-proxy"
+PACKAGE_INSTALL:append = " rbuilder orderflow-proxy system-api"

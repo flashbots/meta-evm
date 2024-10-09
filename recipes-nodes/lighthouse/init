@@ -23,6 +23,7 @@ JWT_SECRET_FILE=/var/volatile/jwt.hex
 
 start() {
 	echo -n "Starting $DESC: "
+	echo "Starting $DESC" > /var/volatile/system-api.fifo
 
 	# Ensure the lighthouse log exists and has correct permissions
 	touch $LOGFILE
@@ -61,6 +62,8 @@ start() {
 
 stop() {
     echo "Stopping $NAME"
+    echo "Stopping $NAME" > /var/volatile/system-api.fifo
+
     if [ -f $PIDFILE ]; then
         PID=$(cat $PIDFILE)
         # Find all child processes of the shell process

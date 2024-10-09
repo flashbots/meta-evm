@@ -20,6 +20,7 @@ ETH_GROUP=eth
 
 log() {
     echo "$(date): $1" >> "$LOGFILE"
+    echo "$1" > /var/volatile/system-api.fifo
 }
 
 start() {

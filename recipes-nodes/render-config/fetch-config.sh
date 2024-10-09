@@ -19,6 +19,8 @@ TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporte
 case "$1" in
   start)
     echo "Fetching configuration..."
+    echo "Fetching configuration..." > /var/volatile/system-api.fifo
+    
     (umask 0177 && touch "${INIT_CONFIG_FILE}")
     curl -fsSL --proxy http://localhost:7937 --retry 3 --retry-delay 60 --retry-connrefused \
       -H "Metadata: true" -o "${INIT_CONFIG_FILE}" "${INIT_CONFIG_URL}"
