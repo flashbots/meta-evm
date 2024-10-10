@@ -12,19 +12,21 @@ error_storage_path = "/tmp/rbuilder_errors.sqlite"
 relay_secret_key = "{{rbuilder.relay_secret_key}}"
 coinbase_secret_key = "{{rbuilder.coinbase_secret_key}}"
 optimistic_relay_secret_key = "{{rbuilder.optimistic_relay_secret_key}}"
+top_bid_stream_api_key = "{{rbuilder.top_bid_stream_api_key}}"
 
 cl_node_url = ["http://127.0.0.1:3500"]
 
 jsonrpc_server_port = 8645
 jsonrpc_server_ip = "127.0.0.1"
 el_node_ipc_path = "/tmp/reth.ipc"
-extra_data = "Illuminate Dmocrtz Dstrib Prtct"
+extra_data = "{{rbuilder.extra_data}}"
 
 blocklist_file_path = "/etc/rbuilder.ofac.json"
 
 dry_run = false
 
 ignore_cancellable_orders = true
+always_seal = {{rbuilder.always_seal}}
 
 max_concurrent_seals = 4
 root_hash_task_pool_threads = 4
@@ -36,14 +38,16 @@ sbundle_mergeabe_signers = ["0xFC171C46A32DC7fF09fBDDD4884a65b2aD596517"]
 # slot_delta_to_start_submits_ms = -5000
 live_builders = ["mp-ordering", "mgp-ordering", "merging"]
 
+{{#rbuilder.relays}}
 [[relays]]
-name = "flashbots"
-url = "https://0xac6e77dfe25ecd6110b8e780608cce0dab71fdd5ebea22a16c0205200f2f8e2e3ad3b71d3499c54ad14d6c21b41a37ae@boost-relay.flashbots.net"
-priority = 0
-use_ssz_for_submit = true
-use_gzip_for_submit = false
-optimistic = false
-interval_between_submissions_ms = 500
+name = "{{name}}"
+url = "{{url}}"
+use_ssz_for_submit = {{use_ssz_for_submit}}
+use_gzip_for_submit = {{use_gzip_for_submit}}
+priority = {{priority}}
+optimistic = {{optimistic}}
+
+{{/rbuilder.relays}}
 
 [[builders]]
 name = "mgp-ordering"
