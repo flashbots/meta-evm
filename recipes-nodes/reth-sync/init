@@ -35,20 +35,13 @@ start() {
     chown "$RETH_USER:$ETH_GROUP" "$RETH_DIR"
 
     # Run the sync process as the reth user
-    BASE_SNAPSHOT_URL="https://snapshots.flashbots.dev/reth-mainnet-full"
-    LATEST_VERSION=$(rclone copyurl "$BASE_SNAPSHOT_URL/latest_version.meta.txt" - 2>> "$LOGFILE")
-    log "Latest version: $LATEST_VERSION"
-
-    rclone copyurl "$BASE_SNAPSHOT_URL/$LATEST_VERSION/files.txt" files.txt >> "$LOGFILE" 2>&1
-
-    log "Starting rclone copy"
-    rclone copy --progress --transfers 20 --multi-thread-streams 30 \
-        --http-url "$BASE_SNAPSHOT_URL/$LATEST_VERSION" --no-traverse --http-no-head \
-        --disable-http2 --inplace --no-gzip-encoding --size-only --retries 6 \
-        --retries-sleep 10s --files-from files.txt :http: "$RETH_DIR" >> "$LOGFILE" 2>&1
-
-    rm files.txt
-    log "Reth is synced with the latest meta version: $LATEST_VERSION"
+    LATEST_META=$(rclone --config $RCLONE_CONFIG cat r2:chain-db-snapshots/reth-mainnet-full/latest_version.meta.txt)
+    echo "Latest meta: $LATEST_META"
+    rclone sync --config $RCLONE_CONFIG -v -P --transfers=20 --multi-thread-streams 30 \
+    --contimeout=10m --retries 10 --retries-sleep 60 --error-on-no-transfer --update --fast-list \
+    --delete-during --disable-http2 --no-gzip-encoding \
+    --exclude 'files.txt' r2:chain-db-snapshots/reth-mainnet-full/$LATEST_META/ $RETH_DIR
+	echo "Reth is synced with the latest meta version: $LATEST_META" >> $LOGFILE 2>&1
 
     chown -R "$RETH_USER:$ETH_GROUP" "$RETH_DIR"
 }
