@@ -21,7 +21,7 @@ RETH_DIR=/persistent/reth
 JWT_SECRET_FILE=/var/volatile/jwt.hex
 
 start() {
-	echo -n "Starting $DESC: " 
+	echo -n "Starting $DESC: "
 	echo "Starting $DESC" > /var/volatile/system-api.fifo
 
 	# Ensure the reth log file exists and has correct permissions
@@ -55,6 +55,7 @@ start() {
 		--ws.api "eth,net,trace,web3,rpc,debug,txpool" \
 		--log.stdout.format json \
 		--log.file.max-files 0 \
+		--metrics "127.0.0.1:9001" \
 		2>&1 | tee ${LOGFILE}"
 	echo "$NAME."
 }
