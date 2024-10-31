@@ -6,6 +6,8 @@
     "optimistic_relay_secret_key": "optimistic_relay_key",
     "top_bid_stream_api_key": "string",
     "always_seal": true,
+    "dry_run": true,
+    "dry_run_validation_url": "http://localhost:8545",
     "relays": [
       {
           "name": "flashbots",
