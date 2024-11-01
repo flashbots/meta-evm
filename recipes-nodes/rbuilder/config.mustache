@@ -23,7 +23,8 @@ extra_data = "{{rbuilder.extra_data}}"
 
 blocklist_file_path = "/etc/rbuilder.ofac.json"
 
-dry_run = false
+dry_run = {{rbuilder.dry_run}}
+dry_run_validation_url = {{rbuilder.dry_run_validation_url}}
 
 ignore_cancellable_orders = true
 always_seal = {{rbuilder.always_seal}}
