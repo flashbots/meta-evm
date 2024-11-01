@@ -34,7 +34,7 @@ do_install:append() {
 
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${WORKDIR}/${INITSCRIPT_NAME} ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
-    install -m 0640 ${THISDIR}/ordeflow-proxy.conf.mustache ${D}${sysconfdir}/ordeflow-proxy.conf.mustache
+    install -m 0640 ${WORKDIR}/orderflow-proxy.conf.mustache ${D}${sysconfdir}/orderflow-proxy.conf.mustache
 }
 
-FILES:${PN} = "${sysconfdir}/init.d/${INITSCRIPT_NAME} ${bindir}/orderflow-proxy ${sysconfdir}/ordeflow-proxy.conf.mustache"
+FILES:${PN} = "${sysconfdir}/init.d/${INITSCRIPT_NAME} ${bindir}/orderflow-proxy ${sysconfdir}/orderflow-proxy.conf.mustache"
