@@ -11,7 +11,7 @@ INITSCRIPT_PARAMS = "defaults 99"
 GO_IMPORT = "github.com/flashbots/tdx-orderflow-proxy"
 SRC_URI = "git://${GO_IMPORT};protocol=https;branch=main \
            file://orderflow-proxy-init \
-           file://ordeflow-proxy.conf.mustache"
+           file://orderflow-proxy.conf.mustache"
 SRCREV = "v0.2.0"
 
 GO_INSTALL = "${GO_IMPORT}/cmd/receiver-proxy"
