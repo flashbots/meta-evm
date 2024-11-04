@@ -1,7 +1,7 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:        rbuilder
-# Required-Start:  $remote_fs $syslog $networking reth
+# Required-Start:  $remote_fs $syslog $networking fetch-config reth
 # Required-Stop:   $remote_fs $syslog
 # Default-Start:   2 3 4 5
 # Default-Stop:    1
