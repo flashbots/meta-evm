@@ -12,14 +12,15 @@
 DAEMON=/usr/bin/orderflow-proxy
 NAME=orderflow-proxy
 DESC="Orderflow Proxy"
-DAEMON_ARGS="--users-listen-addr=0.0.0.0:443 --network-listen-addr=0.0.0.0:5544 --cert-listen-addr=127.0.0.1:14727 --builder-endpoint=http://127.0.0.1:8645"
 PIDFILE=/var/run/$NAME.pid
 LOGFILE=/var/log/$NAME.log
+
+source /etc/ordeflow-proxy.conf
 
 start() {
     echo -n "Starting $DESC: "
     echo "Starting $DESC" > /var/volatile/system-api.fifo
-    start-stop-daemon -S --make-pidfile -p $PIDFILE -m -b -a $DAEMON -- $DAEMON_ARGS > $LOGFILE 2>&1
+    start-stop-daemon -S --make-pidfile -p $PIDFILE -m -b -a $DAEMON -- > $LOGFILE 2>&1
     echo "$NAME."
 }
 
