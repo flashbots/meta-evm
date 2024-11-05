@@ -20,7 +20,7 @@ source /etc/orderflow-proxy.conf
 start() {
     echo -n "Starting $DESC: "
     echo "Starting $DESC" > /var/volatile/system-api.fifo
-    start-stop-daemon -S --make-pidfile -p $PIDFILE -m -b -a $DAEMON -- > $LOGFILE 2>&1
+    start-stop-daemon -S --make-pidfile -p $PIDFILE -m -b --exec /bin/sh -- -c "exec $DAEMON >> $LOGFILE 2>&1"
     echo "$NAME."
 }
 
