@@ -1,0 +1,3 @@
+# -s: Disallow password logins
+# -g: Disable password logins for root
+DROPBEAR_EXTRA_ARGS="-s -g"

@@ -1,1 +1,1 @@
-PACKAGE_INSTALL:append = " rbuilder orderflow-proxy system-api"
+PACKAGE_INSTALL:append = " rbuilder orderflow-proxy system-api ssh-key-injection"
