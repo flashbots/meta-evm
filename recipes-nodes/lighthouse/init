@@ -1,7 +1,7 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          lighthouse
-# Required-Start:    $network $remote_fs
+# Required-Start:    $network $remote_fs fetch-config
 # Required-Stop:     $network $remote_fs
 # Default-Start:     5
 # Default-Stop:      0 1 6
@@ -14,12 +14,47 @@ DAEMON=/usr/bin/lighthouse
 NAME=lighthouse
 DESC="Lighthouse Beacon Node"
 PIDFILE=/var/run/lighthouse.pid
+PIDFILE_MONITOR=/var/run/lighthouse_monitor.pid
 LOGFILE=/var/log/lighthouse.log
+LOGFILE_MONITOR=/var/log/lighthouse_monitor.log
 LIGHTHOUSE_USER=lighthouse
 ETH_GROUP=eth
 LIGHTHOUSE_DIR=/persistent/lighthouse
 SUGGESTED_FEE_RECIPIENT=0x000000000000000000000000000000000000dead
 JWT_SECRET_FILE=/var/volatile/jwt.hex
+
+monitor_and_restart() {
+    while true; do
+        if ! pgrep -f "$DAEMON" > /dev/null; then
+            echo "$(date): $DESC crashed. Restarting in 10 seconds..." >> ${LOGFILE_MONITOR}
+            sleep 10
+            start_lighthouse
+        fi
+        sleep 5
+    done
+}
+
+start_lighthouse() {
+		start-stop-daemon -S --make-pidfile -p $PIDFILE -c $LIGHTHOUSE_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec ${DAEMON} \
+		bn \
+		--eth1 \
+		--checkpoint-sync-url https://mainnet.checkpoint.sigp.io \
+		--execution-endpoint http://localhost:8551 \
+		--execution-jwt $JWT_SECRET_FILE \
+		--suggested-fee-recipient ${SUGGESTED_FEE_RECIPIENT} \
+		--http-allow-sync-stalled \
+		--always-prepare-payload \
+		--prepare-payload-lookahead 8000 \
+		--disable-deposit-contract-sync \
+		--http \
+		--port 9000 \
+		--http-port 3500 \
+		--metrics \
+		--metrics-address 127.0.0.1 \
+		--metrics-port 5054 \
+		--datadir "$LIGHTHOUSE_DIR" \
+		2>&1 | tee ${LOGFILE}"
+}
 
 start() {
 	echo -n "Starting $DESC: "
@@ -41,52 +76,50 @@ start() {
 	chown ${LIGHTHOUSE_USER}:${ETH_GROUP} $JWT_SECRET_FILE
 	chmod 640 $JWT_SECRET_FILE
 
-	start-stop-daemon -S --make-pidfile -p $PIDFILE -c $LIGHTHOUSE_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec ${DAEMON} \
-		bn \
-		--eth1 \
-		--checkpoint-sync-url https://mainnet.checkpoint.sigp.io \
-		--execution-endpoint http://localhost:8551 \
-		--execution-jwt $JWT_SECRET_FILE \
-		--suggested-fee-recipient ${SUGGESTED_FEE_RECIPIENT} \
-		--http-allow-sync-stalled \
-		--always-prepare-payload \
-		--prepare-payload-lookahead 8000 \
-		--disable-deposit-contract-sync \
-		--http \
-		--port 9000 \
-		--http-port 3500 \
-		--metrics \
-		--metrics-address 127.0.0.1 \
-		--metrics-port 5054 \
-		--datadir "$LIGHTHOUSE_DIR" \
-		2>&1 | tee ${LOGFILE}"
+	start_lighthouse
 	echo "$NAME."
+
+	# Start the monitor in the background
+	monitor_and_restart &
+	echo $! > $PIDFILE_MONITOR
 }
 
 stop() {
     echo "Stopping $NAME"
     echo "Stopping $NAME" > /var/volatile/system-api.fifo
 
-    if [ -f $PIDFILE ]; then
-        PID=$(cat $PIDFILE)
-        # Find all child processes of the shell process
-        PIDS="$PID $(pgrep -P $PID)"
+    local services="lighthouse monitor"
+    for service in $services; do
+        local pidfile_var="PIDFILE"
+        [ "$service" = "monitor" ] && pidfile_var="PIDFILE_MONITOR"
 
-        # Send SIGTERM to all processes
-        for pid in $PIDS; do
-            kill -TERM $pid 2>/dev/null
-        done
+        local pidfile=$(eval echo \$$pidfile_var)
 
-        # Send SIGKILL to any remaining processes
-        for pid in $PIDS; do
-            kill -KILL $pid 2>/dev/null
-        done
+        echo "Stopping $service"
+        if [ -f "$pidfile" ]; then
+            local pid=$(cat "$pidfile")
+            local pids="$pid $(pgrep -P $pid)"
 
-        rm -f $PIDFILE
-    else
-        echo "$PIDFILE not found, $NAME may not be running"
-    fi
-    echo "$NAME stopped"
+            # Send SIGTERM to all processes
+            kill -TERM $pids 2>/dev/null
+
+            # Wait for processes to terminate
+            for i in $(seq 1 5); do
+                if ! kill -0 $pids 2>/dev/null; then
+                    break
+                fi
+                sleep 1
+            done
+
+            # Send SIGKILL to any remaining processes
+            kill -KILL $pids 2>/dev/null
+
+            rm -f "$pidfile"
+            echo "$service stopped"
+        else
+            echo "$pidfile not found, $service may not be running"
+        fi
+    done
 }
 
 case "$1" in
