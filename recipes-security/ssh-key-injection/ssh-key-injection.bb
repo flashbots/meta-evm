@@ -17,7 +17,7 @@ python () {
         d.setVar('SSH_PUBKEY', ssh_pubkey)
         bb.note("SSH_PUBKEY is set to: %s" % ssh_pubkey)
     else:
-        bb.fatal("SSH_PUBKEY must be set. Please provide an SSH public key.")
+        bb.note("No SSH_PUBKEY is set. The built image will have no SSH access!")
 }
 
 do_install() {
