@@ -27,7 +27,7 @@ INITSCRIPT_PARAMS = "defaults 98"
 FILES:${PN} += "${sysconfdir}/init.d/rbuilder"
 FILES:${PN} += "${sysconfdir}/rbuilder.config.mustache"
 FILES:${PN} += "${sysconfdir}/rbuilder.config"
-FILES:${PN} += "${sysconfdir}/rbuilder.ofac.json"
+FILES:${PN} += "${sysconfdir}/rbuilder.blocklist.json"
 
 USERADD_PACKAGES = "${PN}"
 USERADD_PARAM:${PN} = "-r -s /bin/false -G eth rbuilder"
@@ -109,16 +109,16 @@ EXTRA_OECARGO_BUILDARGS += "--features modern --frozen"
 
 do_install:append() {
     install -d ${D}${sysconfdir}/init.d
+    install -d ${D}/persistent/rbuilder
     install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/rbuilder
 
     # Install config files owned by root, readable by rbuilder
     install -m 0644 ${THISDIR}/config.mustache ${D}${sysconfdir}/rbuilder.config.mustache
     install -m 0640 ${THISDIR}/config.mustache ${D}${sysconfdir}/rbuilder.config
-    install -m 0644 ${THISDIR}/ofac.json ${D}${sysconfdir}/rbuilder.ofac.json
+    install -m 0640 ${THISDIR}/ofac.json ${D}/persistent/rbuilder/rbuilder.blocklist.json
 
     # Ensure rbuilder can read these files
-    chown rbuilder:rbuilder ${D}${sysconfdir}/rbuilder.config
-    chown rbuilder:rbuilder ${D}${sysconfdir}/rbuilder.ofac.json
+    chown rbuilder:rbuilder ${D}${sysconfdir}/rbuilder.config ${D}/persistent/rbuilder/rbuilder.blocklist.json
 }
 
 # Ensure do_install task is re-run if CARGO_TARGET_SUBDIR changes
@@ -126,7 +126,7 @@ do_install[vardeps] += "CARGO_TARGET_SUBDIR"
 
 # Define the files to be included in the package
 FILES:${PN} += "${bindir}/rbuilder"
+FILES:${PN} += "/persistent/rbuilder/rbuilder.blocklist.json"
 FILES:${PN} += "${sysconfdir}/init.d/rbuilder"
 FILES:${PN} += "${sysconfdir}/rbuilder.config.mustache"
 FILES:${PN} += "${sysconfdir}/rbuilder.config"
-FILES:${PN} += "${sysconfdir}/rbuilder.ofac.json"
