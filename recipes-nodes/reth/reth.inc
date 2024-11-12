@@ -15,32 +15,11 @@ TOOLCHAIN = "clang"
 do_compile[network] = "1"
 
 # Required system dependencies
-DEPENDS += "\
-    openssl-native \
-    openssl \
-    zlib-native \
-    zlib \
-    postgresql \
-    libffi \
-    clang-native \
-"
-
-RDEPENDS:${PN} += "\
-    openssl \
-    zlib \
-    postgresql \
-    libffi \
-"
+DEPENDS += "eth-group zlib-native"
+RDEPENDS:${PN} += "disk-encryption render-config eth-group lighthouse cvm-reverse-proxy-server cvm-reverse-proxy-client"
 
 # Configure cargo features
 CARGO_FEATURES = "jemalloc asm-keccak min-debug-logs"
-
-# Set environment variables for build
-export OPENSSL_STATIC = "1"
-export OPENSSL_DIR = "${STAGING_DIR_NATIVE}/usr"
-export ZLIB_DIR = "${STAGING_DIR_NATIVE}/usr"
-export PQ_LIB_DIR = "${STAGING_LIBDIR_NATIVE}"
-export PQ_INCLUDE_DIR = "${STAGING_INCDIR_NATIVE}"
 
 # Configure rustflags
 RUSTFLAGS:append = " -C target-cpu=generic"
@@ -79,7 +58,14 @@ python do_set_source_date_epoch() {
 # Add the source date epoch task to run after unpacking and before compiling
 addtask set_source_date_epoch after do_unpack before do_compile
 
+# Set environment variables before compilation
+do_compile:prepend() {
+    # Configure zlib
+    export ZLIB_DIR="${STAGING_DIR_NATIVE}/usr"
+}
+
 do_install:append() {
+    # Install the init script
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/reth
 }
@@ -88,7 +74,7 @@ do_install:append() {
 INHIBIT_PACKAGE_STRIP = "0"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "0"
 
-DEPENDS += "eth-group"
+DEPENDS += "eth-group zlib-native"
 RDEPENDS:${PN} += "disk-encryption render-config eth-group lighthouse cvm-reverse-proxy-server cvm-reverse-proxy-client"
 
 python () {
