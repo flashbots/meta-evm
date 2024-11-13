@@ -74,9 +74,6 @@ do_install:append() {
 INHIBIT_PACKAGE_STRIP = "0"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "0"
 
-DEPENDS += "eth-group zlib-native"
-RDEPENDS:${PN} += "disk-encryption render-config eth-group lighthouse cvm-reverse-proxy-server cvm-reverse-proxy-client"
-
 python () {
     # Check if INCLUDE_RCLONE is set in the environment or in local.conf
     include_rclone = d.getVar('INCLUDE_RCLONE')
