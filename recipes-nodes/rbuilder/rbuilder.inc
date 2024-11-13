@@ -10,7 +10,7 @@ inherit cargo_bin update-rc.d useradd
 do_compile[network] = "1"
 
 DEPENDS += "libffi openssl eth-group protobuf-native"
-RDEPENDS:${PN} += "libffi openssl eth-group reth cvm-reverse-proxy-server cvm-reverse-proxy-client render-config"
+RDEPENDS:${PN} += "libffi openssl eth-group reth cvm-reverse-proxy-server cvm-reverse-proxy-client render-config rbuilder-bidding"
 
 export BINDGEN_EXTRA_CLANG_ARGS
 BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/recipe-sysroot/usr/include"
@@ -23,11 +23,6 @@ S = "${WORKDIR}/git"
 
 INITSCRIPT_NAME = "rbuilder"
 INITSCRIPT_PARAMS = "defaults 98"
-
-FILES:${PN} += "${sysconfdir}/init.d/rbuilder"
-FILES:${PN} += "${sysconfdir}/rbuilder.config.mustache"
-FILES:${PN} += "${sysconfdir}/rbuilder.config"
-FILES:${PN} += "${sysconfdir}/rbuilder.ofac.json"
 
 USERADD_PACKAGES = "${PN}"
 USERADD_PARAM:${PN} = "-r -s /bin/false -G eth rbuilder"
