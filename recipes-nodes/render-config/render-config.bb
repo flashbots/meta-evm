@@ -23,7 +23,7 @@ python () {
         # If INIT_CONFIG_URL is set (to any non-empty value), keep its value
         d.setVar('INIT_CONFIG_URL', init_config_url)
     else:
-        # If INIT_CONFIG_URL is not set, set it to default hub-atls.builder.flashbots.net 
+        # If INIT_CONFIG_URL is not set, set it to default hub-atls.builder.flashbots.net
         d.setVar('INIT_CONFIG_URL', 'https://hub-atls.builder.flashbots.net')
 }
 
@@ -46,4 +46,4 @@ RDEPENDS:${PN} += "jq curl coreutils mustache"
 inherit update-rc.d
 
 INITSCRIPT_NAME = "fetch-config"
-INITSCRIPT_PARAMS = "defaults 90"
+INITSCRIPT_PARAMS = "defaults 80"

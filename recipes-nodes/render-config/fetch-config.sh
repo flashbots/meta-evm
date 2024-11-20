@@ -12,12 +12,11 @@
 set -e
 
 INIT_CONFIG_FILE="/etc/init-config.json"
-TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporter/process-exporter.yaml /etc/prometheus/prometheus.yml /etc/rbuilder.config /etc/rclone.conf /etc/orderflow-proxy.conf"
+TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporter/process-exporter.yaml /etc/prometheus/prometheus.yml /etc/rbuilder.config /etc/rclone.conf /etc/orderflow-proxy.conf /etc/system-api/basic-auth-secret /etc/system-api/systemapi-config.toml"
 
 case "$1" in
   start)
     echo "Fetching configuration..."
-    echo "Fetching configuration..." > /var/volatile/system-api.fifo
 
     (umask 0177 && touch "${INIT_CONFIG_FILE}")
     curl -fsSL --retry 3 --retry-delay 60 --retry-connrefused \
