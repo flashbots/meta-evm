@@ -70,16 +70,9 @@ failed_order_retries = 1
 name = "mp-ordering-cb"
 sorting = "max-profit"
 
-{{#rbuilder.relays}}
-[[relays]]
-name = "{{name}}"
-url = "{{url}}"
-use_ssz_for_submit = {{use_ssz_for_submit}}
-use_gzip_for_submit = {{use_gzip_for_submit}}
-priority = {{priority}}
-optimistic = {{optimistic}}
-{{#interval_between_submissions_ms}}
-interval_between_submissions_ms = {{interval_between_submissions_ms}}
-{{/interval_between_submissions_ms}}
-
-{{/rbuilder.relays}}
+[[builders]]
+algo = "merging-builder"
+discard_txs = true
+merge_wait_time_ms = 300
+name = "merging"
+num_threads = 3

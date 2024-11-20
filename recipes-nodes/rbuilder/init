@@ -17,6 +17,7 @@ LOGFILE_MONITOR=/var/log/rbuilder_monitor.log
 PIDFILE=/var/run/rbuilder.pid
 PIDFILE_MONITOR=/var/run/rbuilder_monitor.pid
 RBUILDER_USER=rbuilder
+RBUILDER_PERSISTENT_DIR=/persistent/rbuilder
 ETH_GROUP=eth
 RETH_DIR=/persistent/reth
 RETH_USER=reth
@@ -51,6 +52,14 @@ start() {
     chmod 660 $RETH_DIR/db/mdbx.lck
     chmod 660 $RETH_DIR/db/mdbx.dat
     chmod 660 /tmp/reth.ipc
+
+    mkdir -p $RBUILDER_PERSISTENT_DIR
+    if [ ! -f $RBUILDER_PERSISTENT_DIR/rbuilder.blocklist.json ]; then
+        echo "[]" > $RBUILDER_PERSISTENT_DIR/rbuilder.blocklist.json
+        chmod 640 $RBUILDER_PERSISTENT_DIR/rbuilder.blocklist.json
+    fi
+    chown -R $RBUILDER_USER:$RBUILDER_USER /persistent/rbuilder /etc/rbuilder.config
+    chmod 640 /etc/rbuilder.config
 
     # Ensure the rbuilder log file exists and has correct permissions
     touch $LOGFILE
