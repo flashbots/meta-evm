@@ -118,6 +118,8 @@ case "$1" in
         ;;
   restart|reload)
         stop
+        # gracefully wait for the services to stop
+        sleep 10
         start
         ;;
   *)

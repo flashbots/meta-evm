@@ -1,41 +1,78 @@
 SUMMARY = "Reth"
 DESCRIPTION = "reth is the command line interface for running a full ethereum node implemented in rust."
-LICENSE = "CLOSED"
-LIC_FILES_CHKSUM = ""
+LICENSE = "MIT | Apache-2.0"
+LIC_FILES_CHKSUM = "file://LICENSE-MIT;md5=762893aeb79bf290840d33562df482fd \
+                    file://LICENSE-APACHE;md5=a343d9147ff9bc8b5864578c4e2118e1"
 
 inherit cargo_bin update-rc.d useradd
 
-# Enable network for the compile task allowing cargo to download dependencies
+# Set the source directory
+S = "${WORKDIR}/git"
+
+TOOLCHAIN = "clang"
+
+# Enable network for cargo
 do_compile[network] = "1"
 
-export BINDGEN_EXTRA_CLANG_ARGS
-BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/recipe-sysroot/usr/include"
+# Required system dependencies
+DEPENDS += "eth-group zlib-native"
+RDEPENDS:${PN} += "disk-encryption render-config eth-group lighthouse cvm-reverse-proxy-server cvm-reverse-proxy-client"
 
-FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
-SRC_URI += "file://init"
+# Configure cargo features
+CARGO_FEATURES = "jemalloc asm-keccak min-debug-logs"
+
+# Configure rustflags
+RUSTFLAGS:append = " -C target-cpu=generic"
+RUSTFLAGS:append = " --remap-path-prefix=${WORKDIR}=/usr/src/reth"
+RUSTFLAGS:append = " -C link-arg=-Wl,--compress-debug-sections=zlib"
+RUSTFLAGS:append = " -C link-arg=-Wl,--build-id=none"
+RUSTFLAGS:append = " -C symbol-mangling-version=v0"
+RUSTFLAGS:append = " -C strip=none"
+
+# User/group setup
+USERADD_PACKAGES = "${PN}"
+USERADD_PARAM:${PN} = "-r -s /bin/false -G eth reth"
+GROUPADD_PARAM:${PN} = "eth"
+
+# Init script configuration
 INITSCRIPT_NAME = "reth"
 INITSCRIPT_PARAMS = "defaults 97"
 
-S = "${WORKDIR}/git"
+# Python function to set SOURCE_DATE_EPOCH for reproducible builds
+python do_set_source_date_epoch() {
+    import subprocess
+    import time
 
-USERADD_PACKAGES = "${PN}"
-USERADD_PARAM:${PN} = "-r -s /bin/false -G eth reth"
+    # Get the commit date of the latest commit
+    cmd = f"git -C {d.getVar('S')} log -1 --pretty=%ct"
+    commit_date = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
 
-do_install:append() {
-    install -d ${D}${bindir}
-    install -d ${D}${sysconfdir}/init.d
-    install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/reth
-    
-    # Create directory for reth data
-    install -d ${D}/persistent/reth
-    chown reth:eth ${D}/persistent/reth
-    chmod 0770 ${D}/persistent/reth
+    # Set SOURCE_DATE_EPOCH to the commit date
+    d.setVar('SOURCE_DATE_EPOCH', commit_date)
+
+    # Log the date for debugging
+    human_date = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(int(commit_date)))
+    bb.note(f"Set SOURCE_DATE_EPOCH to {commit_date} ({human_date} UTC)")
 }
 
-FILES:${PN} += "/persistent/reth"
-TOOLCHAIN = "clang"
-DEPENDS += "eth-group"
-RDEPENDS:${PN} += "disk-encryption render-config eth-group lighthouse cvm-reverse-proxy-server cvm-reverse-proxy-client"
+# Add the source date epoch task to run after unpacking and before compiling
+addtask set_source_date_epoch after do_unpack before do_compile
+
+# Set environment variables before compilation
+do_compile:prepend() {
+    # Configure zlib
+    export ZLIB_DIR="${STAGING_DIR_NATIVE}/usr"
+}
+
+do_install:append() {
+    # Install the init script
+    install -d ${D}${sysconfdir}/init.d
+    install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/reth
+}
+
+# Let Yocto handle stripping
+INHIBIT_PACKAGE_STRIP = "0"
+INHIBIT_PACKAGE_DEBUG_SPLIT = "0"
 
 python () {
     # Check if INCLUDE_RCLONE is set in the environment or in local.conf
