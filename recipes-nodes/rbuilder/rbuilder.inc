@@ -18,7 +18,6 @@ BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/rec
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 SRC_URI += "file://init"
 SRC_URI += "file://config.mustache"
-SRC_URI += "file://ofac.json"
 S = "${WORKDIR}/git"
 
 INITSCRIPT_NAME = "rbuilder"
@@ -108,12 +107,9 @@ do_install:append() {
 
     # Install config files owned by root, readable by rbuilder
     install -m 0644 ${THISDIR}/config.mustache ${D}${sysconfdir}/rbuilder.config.mustache
-    install -m 0640 ${THISDIR}/config.mustache ${D}${sysconfdir}/rbuilder.config
-    install -m 0644 ${THISDIR}/ofac.json ${D}${sysconfdir}/rbuilder.ofac.json
 
     # Ensure rbuilder can read these files
     chown rbuilder:rbuilder ${D}${sysconfdir}/rbuilder.config
-    chown rbuilder:rbuilder ${D}${sysconfdir}/rbuilder.ofac.json
 }
 
 # Ensure do_install task is re-run if CARGO_TARGET_SUBDIR changes
@@ -123,5 +119,3 @@ do_install[vardeps] += "CARGO_TARGET_SUBDIR"
 FILES:${PN} += "${bindir}/rbuilder"
 FILES:${PN} += "${sysconfdir}/init.d/rbuilder"
 FILES:${PN} += "${sysconfdir}/rbuilder.config.mustache"
-FILES:${PN} += "${sysconfdir}/rbuilder.config"
-FILES:${PN} += "${sysconfdir}/rbuilder.ofac.json"
