@@ -12,22 +12,38 @@
 set -e
 
 INIT_CONFIG_FILE="/etc/init-config.json"
-TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporter/process-exporter.yaml /etc/prometheus/prometheus.yml /etc/rbuilder.config /etc/rclone.conf /etc/orderflow-proxy.conf /etc/system-api/basic-auth-secret /etc/system-api/systemapi-config.toml"
+TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporter/process-exporter.yaml /etc/prometheus/prometheus.yml /etc/rbuilder.config /etc/rclone.conf /etc/orderflow-proxy.conf /etc/system-api/systemapi-config.toml"
+SYSTEM_API_FIFO=/var/volatile/system-api.fifo
+
+log() {
+    if [ -p $SYSTEM_API_FIFO ]; then
+        date_log() {
+            echo -n ""
+        }
+    else
+        date_log() {
+            echo -n "$(date): "
+        }
+    fi
+    echo "$(date_log)$1" | tee -a $SYSTEM_API_FIFO
+}
 
 case "$1" in
   start)
-    echo "Fetching configuration..."
+    log "Fetching configuration..."
 
     (umask 0177 && touch "${INIT_CONFIG_FILE}")
     curl -fsSL --retry 3 --retry-delay 60 --retry-connrefused \
       -o "${INIT_CONFIG_FILE}" http://localhost:7937/api/l1-builder/v1/configuration
     if [ ! -s "${INIT_CONFIG_FILE}" ]; then
-      echo "Failed to fetch configuration."
+      log "Failed to fetch configuration."
       exit 1
     fi
     for file in $TEMPLATED_CONFIG_FILES; do
       /usr/bin/render-config.sh "${INIT_CONFIG_FILE}" "${file}.mustache" > "${file}"
+      log "Rendered ${file}."
     done
+    log "All configs rendered successfully"
     rm -f "${INIT_CONFIG_FILE}"
     ;;
   stop)
