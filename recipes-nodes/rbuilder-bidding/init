@@ -9,7 +9,6 @@
 ### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-DAEMON= #TODO: exact podman execution command name. Needed also for the monitor_and_restart function to detect it if crashed or not
 NAME=rbuilder-bidding
 DESC="Builder Bidding Service"
 LOGFILE=/var/log/rbuilder-bidding.log
@@ -17,30 +16,17 @@ LOGFILE_MONITOR=/var/log/rbuilder-bidding_monitor.log
 PIDFILE=/var/run/rbuilder-bidding.pid
 PIDFILE_MONITOR=/var/run/rbuilder-bidding_monitor.pid
 RBUILDER_USER=rbuilder
+RBUILDER_BIDDING_VERSION=sha-a329b17@sha256:d5bc0de4a9eb9290cafd524bdf9618620d30d90b2c68ae749b16dca8f36081b4
 ETH_GROUP=eth
 
-
-monitor_and_restart() {
-    #TODO: Make sure the podman execution command is detected correctly
-    while true; do
-        if ! pgrep -f "$DAEMON" > /dev/null; then
-            echo "$(date): $DESC crashed. Restarting in 60 seconds..." >> ${LOGFILE_MONITOR}
-            sleep 60
-            start_builder_bidding
-        fi
-        sleep 5
-    done
-}
+source /etc/rbuilder-bidding/rbuilder-bidding-token
 
 start_builder_bidding() {
-    # Temporary no-op function until implementation is ready
-    echo "TODO: Implement start_builder_bidding"
-    return 0
-    
-    #TODO: adjust this according to the podman execution command
-    #start-stop-daemon -S --make-pidfile -p $PIDFILE -c $RBUILDER_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec
-    #    ${DAEMON} run /etc/rbuilder.config \
-    #    2>&1 | tee ${LOGFILE}"
+    podman run -dt --rm --restart on-failure --name $NAME \
+        -v /etc/rbuilder-bidding:/rbuilder-bidding \
+        -v /var/run/rbuilder:/var/run/rbuilder \
+        --user $(id -u rbuilder):$(id -g rbuilder) \
+        ghcr.io/flashbots/rbuilder-internal:$RBUILDER_BIDDING_VERSION /rbuilder-bidding/bidding-service.toml
 }
 
 start() {
@@ -51,48 +37,18 @@ start() {
     touch $LOGFILE
     chown $RBUILDER_USER:$ETH_GROUP $LOGFILE
 
+    echo $GITHUB_TOKEN | podman login ghcr.io -u flashbots --password-stdin
+
+    mkdir -p /var/run/rbuilder
+    chown -R $RBUILDER_USER:$RBUILDER_USER /var/run/rbuilder
+
     start_builder_bidding
     echo "$NAME."
-
-    # Start the monitor in the background
-    monitor_and_restart &
-    echo $! > $PIDFILE_MONITOR
 }
 
 stop() {
-    echo "Stopping $DESC" > /var/volatile/system-api.fifo
-    local services="rbuilder monitor"
-    for service in $services; do
-        local pidfile_var="PIDFILE"
-        [ "$service" = "monitor" ] && pidfile_var="PIDFILE_MONITOR"
-
-        local pidfile=$(eval echo \$$pidfile_var)
-
-        echo "Stopping $service"
-        if [ -f "$pidfile" ]; then
-            local pid=$(cat "$pidfile")
-            local pids="$pid $(pgrep -P $pid)"
-
-            # Send SIGTERM to all processes
-            kill -TERM $pids 2>/dev/null
-
-            # Wait for processes to terminate
-            for i in $(seq 1 5); do
-                if ! kill -0 $pids 2>/dev/null; then
-                    break
-                fi
-                sleep 1
-            done
-
-            # Send SIGKILL to any remaining processes
-            kill -KILL $pids 2>/dev/null
-
-            rm -f "$pidfile"
-            echo "$service stopped"
-        else
-            echo "$pidfile not found, $service may not be running"
-        fi
-    done
+    echo "Stopping $DESC" | tee -a /var/volatile/system-api.fifo
+    podman stop $NAME
 }
 
 case "$1" in
@@ -104,8 +60,6 @@ case "$1" in
         ;;
   restart|reload)
         stop
-        # gracefully wait for the services to stop
-        sleep 10
         start
         ;;
   *)

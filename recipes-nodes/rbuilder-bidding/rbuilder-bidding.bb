@@ -2,7 +2,9 @@ DESCRIPTION = "Rbuilder bidding service"
 LICENSE = "CLOSED"
 FILESEXTRAPATHS:prepend := "${THISDIR}:"
 
-SRC_URI += "file://init"
+SRC_URI += "file://init \
+            file://bidding-service.toml \
+            file://rbuilder-bidding-token.mustache"
 
 INITSCRIPT_NAME = "rbuilder-bidding"
 INITSCRIPT_PARAMS = "defaults 98"
@@ -11,7 +13,11 @@ inherit update-rc.d
 
 do_install() {
     install -d ${D}${sysconfdir}/init.d
+    install -d -m 0755 ${D}${sysconfdir}/rbuilder-bidding
     install -m 0755 ${WORKDIR}/init ${D}${sysconfdir}/init.d/rbuilder-bidding
+    install -m 0644 ${THISDIR}/bidding-service.toml ${D}${sysconfdir}/rbuilder-bidding/bidding-service.toml
+    install -m 0600 ${THISDIR}/rbuilder-bidding-token.mustache ${D}${sysconfdir}/rbuilder-bidding/rbuilder-bidding-token.mustache
+    chown -R rbuilder:rbuilder ${D}${sysconfdir}/rbuilder-bidding/*
 }
 
-FILES:${PN} = "${sysconfdir}/init.d/${INITSCRIPT_NAME}"
+FILES:${PN} = "${sysconfdir}/init.d/${INITSCRIPT_NAME} ${sysconfdir}/rbuilder-bidding/bidding-service.toml ${sysconfdir}/rbuilder-bidding/rbuilder-bidding-token.mustache"
