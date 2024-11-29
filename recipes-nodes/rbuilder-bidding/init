@@ -16,7 +16,7 @@ LOGFILE_MONITOR=/var/log/rbuilder-bidding_monitor.log
 PIDFILE=/var/run/rbuilder-bidding.pid
 PIDFILE_MONITOR=/var/run/rbuilder-bidding_monitor.pid
 RBUILDER_USER=rbuilder
-RBUILDER_BIDDING_VERSION=sha-a329b17@sha256:d5bc0de4a9eb9290cafd524bdf9618620d30d90b2c68ae749b16dca8f36081b4
+RBUILDER_BIDDING_VERSION=0.4.0@sha256:b2c13b6c0b2b2ad269c80ed66e5b54dda18eb9fa71acb22f82a2cdc745811cbd
 ETH_GROUP=eth
 
 source /etc/rbuilder-bidding/rbuilder-bidding-token
