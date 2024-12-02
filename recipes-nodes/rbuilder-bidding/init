@@ -11,7 +11,7 @@
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=rbuilder-bidding
 DESC="Builder Bidding Service"
-LOGFILE=/var/log/rbuilder-bidding.log
+LOGFILE=/var/log/containers/rbuilder-bidding.log
 RBUILDER_USER=rbuilder
 RBUILDER_BIDDING_VERSION=0.4.0@sha256:b2c13b6c0b2b2ad269c80ed66e5b54dda18eb9fa71acb22f82a2cdc745811cbd
 ETH_GROUP=eth
@@ -37,7 +37,7 @@ start() {
 
     echo $GITHUB_TOKEN | podman login ghcr.io -u flashbots --password-stdin
 
-    mkdir -p /var/run/rbuilder
+    mkdir -p /var/run/rbuilder /var/log/containers
     chown -R $RBUILDER_USER:$RBUILDER_USER /var/run/rbuilder
 
     start_builder_bidding
