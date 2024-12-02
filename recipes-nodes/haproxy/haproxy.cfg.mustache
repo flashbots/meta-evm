@@ -1,0 +1,32 @@
+global
+  # Maximum number of concurrent connections
+  maxconn 4096
+  # System limits configuration
+  ulimit-n 32768
+
+defaults
+  mode tcp
+  timeout connect 5s
+  timeout client 30s
+  timeout server 30s
+  log global
+
+listen of_proxy
+  bind *:443
+
+  stick-table type ip size 100k expire 5m store conn_rate(10s),bytes_in_rate(1m),conn_cur
+
+  tcp-request connection track-sc0 src
+  tcp-request connection reject if { sc0_conn_rate gt 3 }
+  tcp-request connection reject if { src_conn_cur gt 3 }
+
+  tcp-request content track-sc0 src
+  tcp-request content reject if { sc0_bytes_in_rate gt 10000000 }
+
+  server of_proxy1 {{orderflow_proxy.local_listen_addr}} check
+
+frontend prometheus
+  bind 127.0.0.1:8405
+  mode http
+  http-request use-service prometheus-exporter if { path /metrics }
+  no log

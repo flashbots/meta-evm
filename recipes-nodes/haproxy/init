@@ -1,0 +1,55 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          haproxy
+# Required-Start:    $remote_fs $syslog $network
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start HAProxy service
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=haproxy
+DESC="HAProxy Service"
+LOGFILE=/var/log/haproxy.log
+HAPROXY_VERSION=3.0.6@sha256:0f3127e63b00982c3f12b2a9a17ecbd0595003a191ec1cb403741a692f7a39a9
+
+start_haproxy() {
+    podman run -dt --rm --restart on-failure --name $NAME \
+        -v /etc/haproxy:/usr/local/etc/haproxy:ro \
+        --log-opt path=$LOGFILE --log-opt max-size=10mb \
+        docker.io/haproxy:$HAPROXY_VERSION
+}
+
+start() {
+    echo -n "Starting $DESC: "
+    echo "Starting $DESC" > /var/volatile/system-api.fifo
+    chmod 644 /etc/haproxy/haproxy.cfg
+    start_haproxy
+    echo "$NAME."
+}
+
+stop() {
+    echo "Stopping $DESC" | tee -a /var/volatile/system-api.fifo
+    podman stop $NAME
+}
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart|reload)
+        stop
+        start
+        ;;
+  *)
+    N=/etc/init.d/$NAME
+    echo "Usage: $N {start|stop|restart|reload}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0

@@ -12,9 +12,6 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=rbuilder-bidding
 DESC="Builder Bidding Service"
 LOGFILE=/var/log/rbuilder-bidding.log
-LOGFILE_MONITOR=/var/log/rbuilder-bidding_monitor.log
-PIDFILE=/var/run/rbuilder-bidding.pid
-PIDFILE_MONITOR=/var/run/rbuilder-bidding_monitor.pid
 RBUILDER_USER=rbuilder
 RBUILDER_BIDDING_VERSION=0.4.0@sha256:b2c13b6c0b2b2ad269c80ed66e5b54dda18eb9fa71acb22f82a2cdc745811cbd
 ETH_GROUP=eth
@@ -26,6 +23,7 @@ start_builder_bidding() {
         -v /etc/rbuilder-bidding:/rbuilder-bidding \
         -v /var/run/rbuilder:/var/run/rbuilder \
         --user $(id -u rbuilder):$(id -g rbuilder) \
+        --log-opt path=$LOGFILE --log-opt max-size=10mb \
         ghcr.io/flashbots/rbuilder-internal:$RBUILDER_BIDDING_VERSION /rbuilder-bidding/bidding-service.toml
 }
 
