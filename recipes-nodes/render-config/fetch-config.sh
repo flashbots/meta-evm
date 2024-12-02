@@ -12,7 +12,8 @@
 set -e
 
 INIT_CONFIG_FILE="/etc/init-config.json"
-TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporter/process-exporter.yaml /etc/prometheus/prometheus.yml /etc/rbuilder.config /etc/rclone.conf /etc/orderflow-proxy.conf /etc/system-api/systemapi-config.toml"
+TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporter/process-exporter.yaml /etc/prometheus/prometheus.yml /etc/rbuilder.config /etc/rclone.conf /etc/orderflow-proxy.conf /etc/system-api/systemapi-config.toml /etc/rbuilder-bidding/rbuilder-bidding-token"
+TEMPLATED_CONFIG_FILES_UNSAFE="/etc/rbuilder-bidding/bidding-service.toml"
 SYSTEM_API_FIFO=/var/volatile/system-api.fifo
 
 log() {
@@ -42,6 +43,9 @@ case "$1" in
     for file in $TEMPLATED_CONFIG_FILES; do
       /usr/bin/render-config.sh "${INIT_CONFIG_FILE}" "${file}.mustache" > "${file}"
       log "Rendered ${file}."
+    done
+    for file in $TEMPLATED_CONFIG_FILES_UNSAFE; do
+      /usr/bin/render-config.sh --unsafe "${INIT_CONFIG_FILE}" "${file}.mustache" > "${file}"
     done
     log "All configs rendered successfully"
     rm -f "${INIT_CONFIG_FILE}"
