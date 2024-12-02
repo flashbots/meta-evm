@@ -12,7 +12,8 @@
 set -e
 
 INIT_CONFIG_FILE="/etc/init-config.json"
-TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporter/process-exporter.yaml /etc/prometheus/prometheus.yml /etc/rbuilder.config /etc/rclone.conf /etc/orderflow-proxy.conf"
+TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporter/process-exporter.yaml /etc/prometheus/prometheus.yml /etc/rbuilder.config /etc/rclone.conf /etc/orderflow-proxy.conf /etc/rbuilder-bidding/rbuilder-bidding-token"
+TEMPLATED_CONFIG_FILES_UNSAFE="/etc/rbuilder-bidding/bidding-service.toml"
 
 case "$1" in
   start)
@@ -28,6 +29,9 @@ case "$1" in
     fi
     for file in $TEMPLATED_CONFIG_FILES; do
       /usr/bin/render-config.sh "${INIT_CONFIG_FILE}" "${file}.mustache" > "${file}"
+    done
+    for file in $TEMPLATED_CONFIG_FILES_UNSAFE; do
+      /usr/bin/render-config.sh --unsafe "${INIT_CONFIG_FILE}" "${file}.mustache" > "${file}"
     done
     rm -f "${INIT_CONFIG_FILE}"
     ;;

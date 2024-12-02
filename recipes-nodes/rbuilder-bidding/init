@@ -1,0 +1,72 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          rbuilder-bidding
+# Required-Start:    $remote_fs $syslog $network
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start rbuilder bidding service
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=rbuilder-bidding
+DESC="Builder Bidding Service"
+LOGFILE=/var/log/rbuilder-bidding.log
+LOGFILE_MONITOR=/var/log/rbuilder-bidding_monitor.log
+PIDFILE=/var/run/rbuilder-bidding.pid
+PIDFILE_MONITOR=/var/run/rbuilder-bidding_monitor.pid
+RBUILDER_USER=rbuilder
+RBUILDER_BIDDING_VERSION=0.4.0@sha256:b2c13b6c0b2b2ad269c80ed66e5b54dda18eb9fa71acb22f82a2cdc745811cbd
+ETH_GROUP=eth
+
+source /etc/rbuilder-bidding/rbuilder-bidding-token
+
+start_builder_bidding() {
+    podman run -dt --rm --restart on-failure --name $NAME \
+        -v /etc/rbuilder-bidding:/rbuilder-bidding \
+        -v /var/run/rbuilder:/var/run/rbuilder \
+        --user $(id -u rbuilder):$(id -g rbuilder) \
+        ghcr.io/flashbots/rbuilder-internal:$RBUILDER_BIDDING_VERSION /rbuilder-bidding/bidding-service.toml
+}
+
+start() {
+    echo -n "Starting $DESC: "
+    echo "Starting $DESC" > /var/volatile/system-api.fifo
+
+    # Ensure the rbuilder log file exists and has correct permissions
+    touch $LOGFILE
+    chown $RBUILDER_USER:$ETH_GROUP $LOGFILE
+
+    echo $GITHUB_TOKEN | podman login ghcr.io -u flashbots --password-stdin
+
+    mkdir -p /var/run/rbuilder
+    chown -R $RBUILDER_USER:$RBUILDER_USER /var/run/rbuilder
+
+    start_builder_bidding
+    echo "$NAME."
+}
+
+stop() {
+    echo "Stopping $DESC" | tee -a /var/volatile/system-api.fifo
+    podman stop $NAME
+}
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart|reload)
+        stop
+        start
+        ;;
+  *)
+    N=/etc/init.d/$NAME
+    echo "Usage: $N {start|stop|restart|reload}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0
