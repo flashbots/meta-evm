@@ -1,5 +1,7 @@
 DESCRIPTION = "HAProxy"
 LICENSE = "HAPROXY's license - 2006/06/15"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=2d862e836f92129cdc0ecccc54eed5e0"
+
 FILESEXTRAPATHS:prepend := "${THISDIR}:"
 
 SRC_URI += "file://init \
