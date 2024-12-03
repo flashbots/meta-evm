@@ -3,7 +3,6 @@ LICENSE = "CLOSED"
 FILESEXTRAPATHS:prepend := "${THISDIR}:"
 
 SRC_URI += "file://init \
-            file://bidding-service.toml \
             file://rbuilder-bidding-token.mustache \
             file://bidding-service.toml.mustache"
 
@@ -21,4 +20,4 @@ do_install() {
     chown -R rbuilder:rbuilder ${D}${sysconfdir}/rbuilder-bidding/*
 }
 
-FILES:${PN} = "${sysconfdir}/init.d/${INITSCRIPT_NAME} ${sysconfdir}/rbuilder-bidding/bidding-service.toml ${sysconfdir}/rbuilder-bidding/rbuilder-bidding-token.mustache ${sysconfdir}/rbuilder-bidding/bidding-service.toml.mustache"
+FILES:${PN} = "${sysconfdir}/init.d/${INITSCRIPT_NAME} ${sysconfdir}/rbuilder-bidding/rbuilder-bidding-token.mustache ${sysconfdir}/rbuilder-bidding/bidding-service.toml.mustache"
