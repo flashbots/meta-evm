@@ -22,7 +22,7 @@ log() {
         }
     else
         date_log() {
-            echo -n "$(date): "
+            echo -n "$(date --iso-8601=seconds): "
         }
     fi
     echo "$(date_log)$1" | tee -a $SYSTEM_API_FIFO
