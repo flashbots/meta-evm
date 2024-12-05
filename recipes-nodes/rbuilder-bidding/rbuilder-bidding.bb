@@ -9,7 +9,13 @@ SRC_URI += "file://init \
 INITSCRIPT_NAME = "rbuilder-bidding"
 INITSCRIPT_PARAMS = "defaults 98"
 
-inherit update-rc.d
+inherit update-rc.d useradd
+
+DEPENDS += "eth-group"
+RDEPENDS:${PN} += "eth-group"
+
+USERADD_PACKAGES = "${PN}"
+USERADD_PARAM:${PN} = "-r -s /bin/false -G eth rbuilder"
 
 do_install() {
     install -d ${D}${sysconfdir}/init.d
