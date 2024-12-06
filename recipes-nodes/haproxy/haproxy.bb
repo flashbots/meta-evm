@@ -1,10 +1,12 @@
-DESCRIPTION = "HAProxy"
-LICENSE = "HAPROXY's license - 2006/06/15"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=2d862e836f92129cdc0ecccc54eed5e0"
+DESCRIPTION = "HAProxy is a free, very fast and reliable solution offering high availability, load balancing for TCP and HTTP-based applications"
+HOMEPAGE = "https://www.haproxy.org/"
+LICENSE = "Proprietary"
+LIC_FILES_CHKSUM = "file://${WORKDIR}/LICENSE;md5=2d862e836f92129cdc0ecccc54eed5e0"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}:"
 
 SRC_URI += "file://init \
+            file://LICENSE \
             file://haproxy.cfg.mustache"
 
 INITSCRIPT_NAME = "haproxy"
