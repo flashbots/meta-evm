@@ -65,8 +65,7 @@ start() {
 	chown $LIGHTHOUSE_USER:$ETH_GROUP $LOGFILE
 
 	# Ensure the LIGHTHOUSE_DIR exists and has correct permissions
-	mkdir -p $LIGHTHOUSE_DIR
-	chown -R $LIGHTHOUSE_USER:$ETH_GROUP $LIGHTHOUSE_DIR
+	install -d -m 0770 -o $LIGHTHOUSE_USER -g $ETH_GROUP $LIGHTHOUSE_DIR
 
 	# Remount /var/volatile with increased size
 	mount -o remount,size=90% /var/volatile
