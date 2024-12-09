@@ -114,22 +114,16 @@ do_install() {
     # Create the binary directory in the target root filesystem
     install -d ${D}${bindir}
     # Install the lighthouse binary
-    install -m 755 ${B}/${CARGO_TARGET_SUBDIR}/lighthouse ${D}${bindir}/lighthouse
+    install -m 0755 ${B}/${CARGO_TARGET_SUBDIR}/lighthouse ${D}${bindir}/lighthouse
     # Create the init script directory in the target root filesystem
     install -d ${D}${sysconfdir}/init.d
     # Install the init script
     install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/lighthouse
-
-    # Create directory for lighthouse data and set permissions
-    install -d ${D}/persistent/lighthouse
-    chown lighthouse:eth ${D}/persistent/lighthouse
-    chmod 0770 ${D}/persistent/lighthouse
 }
 
 # Ensure do_install task is re-run if CARGO_TARGET_SUBDIR changes
 do_install[vardeps] += "CARGO_TARGET_SUBDIR"
 
 # Define the files to be included in the package
-FILES:${PN} += "/persistent/lighthouse"
 FILES:${PN} += "${bindir}/lighthouse"
 FILES:${PN} += "${sysconfdir}/init.d/lighthouse"
