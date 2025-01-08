@@ -12,7 +12,7 @@
 set -e
 
 INIT_CONFIG_FILE="/etc/init-config.json"
-TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporter/process-exporter.yaml /etc/prometheus/prometheus.yml /etc/rbuilder.config /etc/rclone.conf /etc/orderflow-proxy.conf /etc/system-api/systemapi-config.toml /etc/rbuilder-bidding/rbuilder-bidding-token"
+TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporter/process-exporter.yaml /etc/prometheus/prometheus.yml /etc/rbuilder.config /etc/rclone.conf /etc/orderflow-proxy.conf /etc/system-api/systemapi-config.toml /etc/rbuilder-bidding/rbuilder-bidding-token /etc/haproxy/haproxy.cfg"
 TEMPLATED_CONFIG_FILES_UNSAFE="/etc/rbuilder-bidding/bidding-service.toml /etc/disk-encryption/key"
 OPTIONAL_TEMPLATES="/etc/disk-encryption/key"
 SYSTEM_API_FIFO=/var/volatile/system-api.fifo
