@@ -17,6 +17,12 @@ RCLONE_CONFIG=/etc/rclone.conf
 RETH_DIR=/persistent/reth
 RETH_USER=reth
 ETH_GROUP=eth
+DAEMON=/usr/bin/rclone
+LATEST_META=$(rclone --config $RCLONE_CONFIG cat r2:chain-db-snapshots/reth-mainnet-full/latest_version.meta.txt)
+DAEMON_ARGS="sync --config $RCLONE_CONFIG -v -P --transfers=20 --multi-thread-streams 30 \
+    --contimeout=10m --retries 10 --retries-sleep 60 --error-on-no-transfer --update --fast-list \
+    --delete-during --disable-http2 --no-gzip-encoding \
+    --exclude 'files.txt' r2:chain-db-snapshots/reth-mainnet-full/$LATEST_META/ $RETH_DIR"
 
 log() {
     echo "$(date): $1" >> "$LOGFILE"
@@ -30,18 +36,10 @@ start() {
     touch "$LOGFILE"
     chown "$RETH_USER:$ETH_GROUP" "$LOGFILE"
 
-    # Ensure the RETH_DIR exists and has correct permissions
     mkdir -p "$RETH_DIR"
-    chown "$RETH_USER:$ETH_GROUP" "$RETH_DIR"
-
-    # Run the sync process as the reth user
-    LATEST_META=$(rclone --config $RCLONE_CONFIG cat r2:chain-db-snapshots/reth-mainnet-full/latest_version.meta.txt)
-    echo "Latest meta: $LATEST_META"
-    rclone sync --config $RCLONE_CONFIG -v -P --transfers=20 --multi-thread-streams 30 \
-    --contimeout=10m --retries 10 --retries-sleep 60 --error-on-no-transfer --update --fast-list \
-    --delete-during --disable-http2 --no-gzip-encoding \
-    --exclude 'files.txt' r2:chain-db-snapshots/reth-mainnet-full/$LATEST_META/ $RETH_DIR
-	echo "Reth is synced with the latest meta version: $LATEST_META" >> $LOGFILE 2>&1
+    log "Latest meta: $LATEST_META"
+    start-stop-daemon -S --make-pidfile -p $PIDFILE -m -b --exec /bin/sh -- -c "exec $DAEMON $DAEMON_ARGS >> $LOGFILE 2>&1"
+	log "Reth is synced with the latest meta version: $LATEST_META" >> $LOGFILE 2>&1
 
     chown -R "$RETH_USER:$ETH_GROUP" "$RETH_DIR"
 }
