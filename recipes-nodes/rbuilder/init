@@ -51,7 +51,6 @@ start() {
     chmod 770 $RETH_DIR/db
     chmod 660 $RETH_DIR/db/mdbx.lck
     chmod 660 $RETH_DIR/db/mdbx.dat
-    chmod 660 /tmp/reth.ipc
 
     mkdir -p $RBUILDER_PERSISTENT_DIR /var/run/rbuilder
     if [ ! -f $RBUILDER_PERSISTENT_DIR/rbuilder.blocklist.json ]; then

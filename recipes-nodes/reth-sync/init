@@ -31,7 +31,10 @@ start() {
 
     touch "$LOGFILE"
     chown "$RETH_USER:$ETH_GROUP" "$LOGFILE"
-
+    if [ -f "$RETH_DIR/reth.toml" ]; then
+        log "Reth directory is not empty. Skipping chain snapshot sync."
+        exit 0
+    fi
     mkdir -p "$RETH_DIR"
 
     RCLONE_RC_USERNAME=admin
