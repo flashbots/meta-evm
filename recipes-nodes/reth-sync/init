@@ -64,7 +64,7 @@ start() {
         curl -fSsL --retry 3 --retry-delay 2 --retry-connrefused \
             -H "Content-Type: application/json" \
             -u "$RCLONE_RC_USERNAME:$RCLONE_RC_PASS" -d '{}' http://localhost:5572/core/stats | \
-            jq -r '"Reth snapshot sync status: Elapsed Time: \(.elapsedTime)s, ETA: \(.eta)s, Transferred: \(.bytes/1048576*100|round/100)/\(.totalBytes/1048576*100|round/100)MB, Speed: \(.speed/1048576*100|round/100)MB/s"' \
+            jq -r '"Reth snapshot sync status: Elapsed Time: \(.elapsedTime*100|round/100)s, ETA: \(.eta)s, Transferred: \(.bytes/1048576*100|round/100)/\(.totalBytes/1048576*100|round/100)MB, Speed: \(.speed/1048576*100|round/100)MB/s"' \
             > /var/volatile/system-api.fifo
         sleep 60
     done

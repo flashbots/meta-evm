@@ -1,5 +1,5 @@
 # -s: Disallow password logins
 # -g: Disable password logins for root
-# -p: Listen on non-default port
 # -W: Increase receive window buffer for faster uploads
-DROPBEAR_EXTRA_ARGS="-s -g -p 40192 -W 6291456"
+DROPBEAR_EXTRA_ARGS="-s -g -W 6291456"
+DROPBEAR_PORT=40192
