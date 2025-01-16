@@ -57,6 +57,12 @@ start() {
     --log.file.max-files 0 \
     --metrics "127.0.0.1:9001" \
     2>&1 | tee ${LOGFILE}"
+
+  while [ ! -e /tmp/reth.ipc ]; do
+    sleep 1
+  done
+  chmod 660 /tmp/reth.ipc
+
   echo "$NAME."
 }
 
@@ -82,11 +88,6 @@ stop() {
     else
         echo "$PIDFILE not found, $NAME may not be running"
     fi
-
-    while [ ! -e /tmp/reth.ipc ]; do
-      sleep 1
-    done
-    chmod 660 /tmp/reth.ipc
 
     echo "$NAME stopped"
 }

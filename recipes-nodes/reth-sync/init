@@ -60,6 +60,7 @@ start() {
     ) &
     echo $! > "$PIDFILE"
 
+    # Monitor the transfer progress. Periodically query rclone and report the stats to System API
     while kill -0 $(cat "$PIDFILE") 2>/dev/null; do
         curl -fSsL --retry 3 --retry-delay 2 --retry-connrefused \
             -H "Content-Type: application/json" \
