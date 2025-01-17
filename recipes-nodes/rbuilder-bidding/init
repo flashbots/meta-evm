@@ -24,7 +24,7 @@ start_builder_bidding() {
         -v /var/run/rbuilder:/var/run/rbuilder \
         --user $(id -u rbuilder):$(id -g rbuilder) \
         --log-opt path=$LOGFILE --log-opt max-size=10mb \
-        ghcr.io/flashbots/rbuilder-internal:$RBUILDER_BIDDING_VERSION /rbuilder-bidding/bidding-service.toml
+        ghcr.io/flashbots/rbuilder-bidding-service:$RBUILDER_BIDDING_VERSION /rbuilder-bidding/bidding-service.toml
 }
 
 start() {
