@@ -13,7 +13,7 @@ NAME=rbuilder-bidding
 DESC="Builder Bidding Service"
 LOGFILE=/var/log/containers/rbuilder-bidding.log
 RBUILDER_USER=rbuilder
-RBUILDER_BIDDING_VERSION=0.4.0@sha256:b2c13b6c0b2b2ad269c80ed66e5b54dda18eb9fa71acb22f82a2cdc745811cbd
+RBUILDER_BIDDING_VERSION=0.4.1@sha256:9a27046ad3d11a38c8f67c98dbc8fb59c2a545f18f2e809e5accdfe8df7d5b8b
 ETH_GROUP=eth
 
 source /etc/rbuilder-bidding/rbuilder-bidding-token
