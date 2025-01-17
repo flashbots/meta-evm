@@ -16,7 +16,7 @@ ignore_cancellable_orders = false
 jsonrpc_server_ip = "127.0.0.1"
 jsonrpc_server_port = 8645
 key_registration_url = "http://127.0.0.1:7937"
-live_builders = ["mgp-ordering", "mp-ordering", "mp-ordering-cb", "mp-ordering-deadline","merging"]
+live_builders = ["mgp-ordering", "mp-ordering", "mp-ordering-cb", "mp-ordering-deadline"]
 log_color = false
 log_json = true
 log_level = "info,rbuilder=debug"
@@ -28,7 +28,6 @@ optimistic_relay_secret_key = "{{rbuilder.optimistic_relay_secret_key}}"
 relay_secret_key = "{{rbuilder.relay_secret_key}}"
 reth_db_path = "/persistent/reth/db"
 reth_static_files_path = "/persistent/reth/static_files"
-root_hash_task_pool_threads = 6
 root_hash_use_sparse_trie = true
 sbundle_mergeabe_signers = ["0xFC171C46A32DC7fF09fBDDD4884a65b2aD596517"]
 simulation_threads = 4
@@ -69,13 +68,6 @@ drop_failed_orders = true
 failed_order_retries = 1
 name = "mp-ordering-cb"
 sorting = "max-profit"
-
-[[builders]]
-algo = "merging-builder"
-discard_txs = true
-merge_wait_time_ms = 300
-name = "merging"
-num_threads = 3
 
 [[relays]]
 interval_between_submissions_ms = 250
