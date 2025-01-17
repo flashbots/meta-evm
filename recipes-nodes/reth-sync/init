@@ -17,6 +17,9 @@ RCLONE_CONFIG=/etc/rclone.conf
 RETH_DIR=/persistent/reth
 RETH_USER=reth
 ETH_GROUP=eth
+DAEMON=/usr/bin/rclone
+RCLONE_RC_HTPASSWD_PATH=/tmp/rclone_rc_htpasswd
+PIDFILE=/var/run/$NAME.pid
 
 log() {
     echo "$(date): $1" >> "$LOGFILE"
@@ -26,24 +29,46 @@ log() {
 start() {
     log "Starting $DESC"
 
-    # Ensure the reth-sync log file exists and has correct permissions
     touch "$LOGFILE"
     chown "$RETH_USER:$ETH_GROUP" "$LOGFILE"
-
-    # Ensure the RETH_DIR exists and has correct permissions
+    if [ -f "$RETH_DIR/reth.toml" ]; then
+        log "Reth directory is not empty. Skipping chain snapshot sync."
+        exit 0
+    fi
     mkdir -p "$RETH_DIR"
-    chown "$RETH_USER:$ETH_GROUP" "$RETH_DIR"
 
-    # Run the sync process as the reth user
+    RCLONE_RC_USERNAME=admin
+    RCLONE_RC_PASS=$(openssl rand -hex 16)
+    install -m 600 <(printf "$RCLONE_RC_USERNAME:$(openssl passwd -apr1 $RCLONE_RC_PASS)\n") $RCLONE_RC_HTPASSWD_PATH
+
     LATEST_META=$(rclone --config $RCLONE_CONFIG cat r2:chain-db-snapshots/reth-mainnet-full/latest_version.meta.txt)
-    echo "Latest meta: $LATEST_META"
-    rclone sync --config $RCLONE_CONFIG -v -P --transfers=20 --multi-thread-streams 30 \
-    --contimeout=10m --retries 10 --retries-sleep 60 --error-on-no-transfer --update --fast-list \
-    --delete-during --disable-http2 --no-gzip-encoding \
-    --exclude 'files.txt' r2:chain-db-snapshots/reth-mainnet-full/$LATEST_META/ $RETH_DIR
-	echo "Reth is synced with the latest meta version: $LATEST_META" >> $LOGFILE 2>&1
+    log "Latest meta: $LATEST_META"
 
-    chown -R "$RETH_USER:$ETH_GROUP" "$RETH_DIR"
+    DAEMON_ARGS="sync --rc --rc-htpasswd $RCLONE_RC_HTPASSWD_PATH --config $RCLONE_CONFIG -v -P --transfers=20 --multi-thread-streams 30 \
+        --contimeout=10m --retries 10 --retries-sleep 60 --error-on-no-transfer --update --fast-list \
+        --delete-during --disable-http2 --no-gzip-encoding \
+        --exclude 'files.txt' r2:chain-db-snapshots/reth-mainnet-full/$LATEST_META/ $RETH_DIR"
+
+    (
+        $DAEMON $DAEMON_ARGS &> "$LOGFILE"
+        if [ $? -eq 0 ]; then
+            log "Reth sync completed successfully (version: $LATEST_META)"
+            chown -R "$RETH_USER:$ETH_GROUP" "$RETH_DIR"
+        else
+            log "Reth sync failed with exit code $?"
+        fi
+    ) &
+    echo $! > "$PIDFILE"
+
+    # Monitor the transfer progress. Periodically query rclone and report the stats to System API
+    while kill -0 $(cat "$PIDFILE") 2>/dev/null; do
+        curl -fSsL --retry 3 --retry-delay 2 --retry-connrefused \
+            -H "Content-Type: application/json" \
+            -u "$RCLONE_RC_USERNAME:$RCLONE_RC_PASS" -d '{}' http://localhost:5572/core/stats | \
+            jq -r '"Reth snapshot sync status: Elapsed Time: \(.elapsedTime*100|round/100)s, ETA: \(.eta)s, Transferred: \(.bytes/1048576*100|round/100)/\(.totalBytes/1048576*100|round/100)MB, Speed: \(.speed/1048576*100|round/100)MB/s"' \
+            > /var/volatile/system-api.fifo
+        sleep 60
+    done
 }
 
 case "$1" in

@@ -1,3 +1,5 @@
+# Disable dropbear on all runlevels
+INITSCRIPT_PARAMS = "stop 10 S ."
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 SRC_URI:append = " file://dropbear.default"
