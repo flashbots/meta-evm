@@ -10,6 +10,8 @@ do_compile[network] = "1"
 inherit go
 
 S = "${WORKDIR}/rclone-${PV}"
+GO_EXTRA_LDFLAGS = "-s -w -buildid="
+INSANE_SKIP:${PN} += "already-stripped"
 
 do_compile() {
     export GOPATH="${WORKDIR}/go"
@@ -17,7 +19,7 @@ do_compile() {
     mkdir -p ${GOBIN}
     export PATH=${PATH}:${GOBIN}
     cd ${S}
-    go build -trimpath -buildmode=pie -o rclone
+    go build -trimpath -buildmode=pie -ldflags "${GO_EXTRA_LDFLAGS}" -o rclone
 }
 
 do_install() {
