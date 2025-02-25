@@ -61,6 +61,9 @@ start() {
   while [ ! -e /tmp/reth.ipc ]; do
     sleep 1
   done
+
+  echo "Sleeping to fix socket permissions after reth has started..."
+  sleep 5
   chmod 660 /tmp/reth.ipc
 
   echo "$NAME."
