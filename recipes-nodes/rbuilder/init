@@ -53,6 +53,10 @@ start() {
     chmod 660 $RETH_DIR/db/mdbx.dat
 
     mkdir -p $RBUILDER_PERSISTENT_DIR /var/run/rbuilder
+    if [ ! -f $RBUILDER_PERSISTENT_DIR/rbuilder.blocklist.json ]; then
+        echo "[]" > $RBUILDER_PERSISTENT_DIR/rbuilder.blocklist.json
+        chmod 640 $RBUILDER_PERSISTENT_DIR/rbuilder.blocklist.json
+    fi
     chown -R $RBUILDER_USER:$RBUILDER_USER /persistent/rbuilder /etc/rbuilder.config /var/run/rbuilder
     chmod 640 /etc/rbuilder.config
 
