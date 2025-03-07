@@ -40,6 +40,10 @@ start_builder() {
 }
 
 start() {
+    if [ ! -f "${RBUILDER_PERSISTENT_DIR}/rbuilder.enabled" ]; then
+        echo "Refused to start rbuilder (disabled in BuilderHub)"
+        exit 0
+    fi
     echo -n "Starting $DESC: "
     echo "Starting $DESC" > /var/volatile/system-api.fifo
 
@@ -57,7 +61,7 @@ start() {
         echo "[]" > $RBUILDER_PERSISTENT_DIR/rbuilder.blocklist.json
         chmod 640 $RBUILDER_PERSISTENT_DIR/rbuilder.blocklist.json
     fi
-    chown -R $RBUILDER_USER:$RBUILDER_USER /persistent/rbuilder /etc/rbuilder.config /var/run/rbuilder
+    chown -R $RBUILDER_USER:$RBUILDER_USER $RBUILDER_PERSISTENT_DIR /etc/rbuilder.config /var/run/rbuilder
     chmod 640 /etc/rbuilder.config
 
     # Ensure the rbuilder log file exists and has correct permissions
