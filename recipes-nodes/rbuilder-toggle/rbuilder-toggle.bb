@@ -22,7 +22,7 @@ do_install() {
   install -m 0755 ${WORKDIR}/rbuilder-toggle.cron ${D}${sysconfdir}/cron.d/rbuilder-toggle
 }
 
-RDEPENDS:${PN} += "jq curl coreutils"
+RDEPENDS:${PN} += "jq curl coreutils rbuilder"
 
 inherit update-rc.d
 
