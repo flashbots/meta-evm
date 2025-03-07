@@ -10,8 +10,6 @@ S = "${WORKDIR}"
 
 do_install() {
   # Create necessary directories
-  install -d ${D}${bindir}
-  install -d ${D}${sysconfdir}
   install -d ${D}${sysconfdir}/init.d
   install -d ${D}${sysconfdir}/cron.d
 
