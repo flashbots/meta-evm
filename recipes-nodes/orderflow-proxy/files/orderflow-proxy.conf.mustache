@@ -1,3 +1,4 @@
+export LOG_JSON=true
 export FLASHBOTS_ORDERFLOW_SIGNER_ADDRESS={{orderflow_proxy.flashbots_orderflow_signing_address}}
 export LOCAL_LISTEN_ADDR={{orderflow_proxy.local_listen_addr}}
 export PUBLIC_LISTEN_ADDR={{orderflow_proxy.public_listen_addr}}
@@ -6,3 +7,4 @@ export CERT_HOSTS=localhost,127.0.0.1,{{public_ip}},{{dns_name}}
 export BUILDER_CONFIGHUB_ENDPOINT={{orderflow_proxy.builder_confighub_endpoint}}
 export ORDERFLOW_ARCHIVE_ENDPOINT={{orderflow_proxy.orderflow_archive_endpoint}}
 export CONN_PER_PEER={{orderflow_proxy.conn_per_peer}}
+export MAX_LOCAL_RPS={{orderflow_proxy.max_local_rps}}
