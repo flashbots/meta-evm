@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          rbuilder-toggle
+# Provides:          rbuilder-status-watchdog
 # Required-Start:    $network
 # Required-Stop:
 # Default-Start:     2 3 4 5
@@ -34,28 +34,28 @@ case "$1" in
     BHUB_CONFIG=$(curl -fsSL --retry 3 --retry-delay 5 --retry-connrefused $BHUB_URL)
 
     if [ -z "${BHUB_CONFIG}" ]; then
-      log "rbuilder-toggle: Failed to fetch configuration."
+      log "rbuilder-status-watchdog: Failed to fetch configuration."
       exit 1
     fi
 
-    TOGGLE_STATUS=$(echo "${BHUB_CONFIG}" | jq -r '.rbuilder.enabled')
+    RBUILDER_ENABLED=$(echo "${BHUB_CONFIG}" | jq -r '.rbuilder.enabled')
     if [ ! -d "${RBUILDER_PERSISTENT_DIR}" ]; then
       umask 0022
       mkdir -p $RBUILDER_PERSISTENT_DIR
     fi
 
     umask 0133
-    if [ "${TOGGLE_STATUS}" = "true" ]; then
+    if [ "${RBUILDER_ENABLED}" = "true" ]; then
       if [ ! -f "${RBUILDER_STATUS_FLAG_FILE}" ]; then
         touch "${RBUILDER_STATUS_FLAG_FILE}"
-        log "rbuilder-toggle: rbuilder is enabled in BuilderHub"
+        log "rbuilder-status-watchdog: rbuilder is enabled in BuilderHub"
 
         service rbuilder restart
       fi
     else
       if [ -f "${RBUILDER_STATUS_FLAG_FILE}" ]; then
         rm -f "${RBUILDER_STATUS_FLAG_FILE}"
-        log "rbuilder-toggle: rbuilder is disabled in BuilderHub"
+        log "rbuilder-status-watchdog: rbuilder is disabled in BuilderHub"
 
         service rbuilder stop
       fi
