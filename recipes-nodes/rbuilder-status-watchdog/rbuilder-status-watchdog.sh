@@ -14,7 +14,8 @@ set -e
 SYSTEM_API_FIFO="/var/volatile/system-api.fifo"
 RBUILDER_PERSISTENT_DIR="/persistent/rbuilder"
 RBUILDER_STATUS_FLAG_FILE="${RBUILDER_PERSISTENT_DIR}/rbuilder.enabled"
-BHUB_URL="http://localhost:7937/api/l1-builder/v1/configuration"
+# locally exposed BuilderHub API proxied through CVM proxy
+BHUB_URL_PROXIED="http://localhost:7937/api/l1-builder/v1/configuration"
 
 log() {
     if [ -p $SYSTEM_API_FIFO ]; then
@@ -31,7 +32,7 @@ log() {
 
 case "$1" in
   start)
-    BHUB_CONFIG=$(curl -fsSL --retry 3 --retry-delay 5 --retry-connrefused $BHUB_URL)
+    BHUB_CONFIG=$(curl -fsSL --retry 3 --retry-delay 5 --retry-connrefused $BHUB_URL_PROXIED)
 
     if [ -z "${BHUB_CONFIG}" ]; then
       log "rbuilder-status-watchdog: Failed to fetch configuration."
