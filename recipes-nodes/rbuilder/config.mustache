@@ -32,38 +32,6 @@ top_bid_ws_basic_auth = "{{rbuilder.top_bid_ws_basic_auth}}"
 top_bid_ws_url = "{{rbuilder.top_bid_ws_url}}"
 watchdog_timeout_sec = 45
 
-[[builders]]
-algo = "ordering-builder"
-discard_txs = true
-drop_failed_orders = true
-failed_order_retries = 1
-name = "mgp-ordering"
-sorting = "mev-gas-price"
-
-[[builders]]
-algo = "ordering-builder"
-discard_txs = true
-drop_failed_orders = true
-failed_order_retries = 1
-name = "mp-ordering"
-sorting = "max-profit"
-
-[[builders]]
-algo = "ordering-builder"
-build_duration_deadline_ms = 30
-discard_txs = true
-drop_failed_orders = true
-failed_order_retries = 1
-name = "mp-ordering-deadline"
-sorting = "max-profit"
-
-[[builders]]
-algo = "ordering-builder"
-coinbase_payment = true
-discard_txs = true
-drop_failed_orders = true
-failed_order_retries = 1
-name = "mp-ordering-cb"
-sorting = "max-profit"
+{{{rbuilder.builders}}}
 
 {{{rbuilder.relays}}}
