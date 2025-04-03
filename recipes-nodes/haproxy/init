@@ -11,7 +11,8 @@
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=haproxy
 DESC="HAProxy Service"
-LOGFILE=/var/log/containers/haproxy.log
+LOG_DIR=/var/log/containers
+LOGFILE="$LOG_DIR/haproxy.log"
 HAPROXY_VERSION=3.0.6@sha256:0f3127e63b00982c3f12b2a9a17ecbd0595003a191ec1cb403741a692f7a39a9
 
 start_haproxy() {
@@ -26,7 +27,7 @@ start() {
     echo -n "Starting $DESC: "
     echo "Starting $DESC" > /var/volatile/system-api.fifo
     chmod 644 /etc/haproxy/haproxy.cfg
-    mkdir -p /var/log/containers
+    install -d -m 755 $LOG_DIR
     start_haproxy
     chmod 644 $LOGFILE
     echo "$NAME."

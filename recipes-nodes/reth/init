@@ -56,7 +56,7 @@ start() {
     --log.stdout.format json \
     --log.file.max-files 0 \
     --metrics "127.0.0.1:9001" \
-    2>&1 | tee ${LOGFILE}"
+    2>&1 | tee -a ${LOGFILE}"
 
   while [ ! -e /tmp/reth.ipc ]; do
     sleep 1
