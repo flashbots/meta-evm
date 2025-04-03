@@ -53,7 +53,7 @@ start_lighthouse() {
 		--metrics-address 127.0.0.1 \
 		--metrics-port 5054 \
 		--datadir "$LIGHTHOUSE_DIR" \
-		2>&1 | tee ${LOGFILE}"
+		2>&1 | tee -a ${LOGFILE}"
 }
 
 start() {

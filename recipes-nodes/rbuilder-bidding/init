@@ -11,9 +11,11 @@
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=rbuilder-bidding
 DESC="Builder Bidding Service"
-LOGFILE=/var/log/containers/rbuilder-bidding.log
+LOG_DIR=/var/log/containers
+LOGFILE="$LOG_DIR/rbuilder-bidding.log"
+RUN_DIR=/var/run/rbuilder
 RBUILDER_USER=rbuilder
-RBUILDER_BIDDING_VERSION=0.4.3@sha256:49b6c9cd1e68efd513a61d29d002777b35df0003b98a06c106d7c56614e8c6dd
+RBUILDER_BIDDING_VERSION=1.0.0@sha256:dbcb871373c7b0a0095544c994930ccff8e2013195b1143ccf25b6f6ab18ea88
 ETH_GROUP=eth
 
 source /etc/rbuilder-bidding/rbuilder-bidding-token
@@ -21,9 +23,9 @@ source /etc/rbuilder-bidding/rbuilder-bidding-token
 start_builder_bidding() {
     podman run -dt --rm --restart on-failure --name $NAME \
         -v /etc/rbuilder-bidding:/rbuilder-bidding \
-        -v /var/run/rbuilder:/var/run/rbuilder \
+        -v $RUN_DIR:$RUN_DIR \
         --user $(id -u rbuilder):$(id -g rbuilder) \
-        --log-opt path=$LOGFILE --log-opt max-size=10mb \
+        --log-opt path=$LOGFILE \
         ghcr.io/flashbots/rbuilder-bidding-service:$RBUILDER_BIDDING_VERSION /rbuilder-bidding/bidding-service.toml
 }
 
@@ -31,16 +33,13 @@ start() {
     echo -n "Starting $DESC: "
     echo "Starting $DESC" > /var/volatile/system-api.fifo
 
-    # Ensure the rbuilder log file exists and has correct permissions
-    touch $LOGFILE
-    chown $RBUILDER_USER:$ETH_GROUP $LOGFILE
-
     echo $GITHUB_TOKEN | podman login ghcr.io -u flashbots --password-stdin
 
-    mkdir -p /var/run/rbuilder /var/log/containers
-    chown -R $RBUILDER_USER:$RBUILDER_USER /var/run/rbuilder
+    install -d -m 755 $LOG_DIR $RUN_DIR
+    chown -R $RBUILDER_USER:$RBUILDER_USER $RUN_DIR
 
     start_builder_bidding
+    chmod 644 $LOGFILE
     echo "$NAME."
 }
 
