@@ -4,23 +4,6 @@ global
   # System limits configuration
   ulimit-n 32768
 
-  ## Set rate-limiting vars
-  # Allowed IPs (space-separated variable)
-  set-var proc.rate_limit_privileged_ips str("{{haproxy.rate_limit_privileged_ips}}")
-
-  # Allowed connection rate per IP
-  set-var proc.rate_limit_conn_rate_regular int({{haproxy.rate_limit_conn_rate_regular}})
-  set-var proc.rate_limit_conn_rate_privileged int({{haproxy.rate_limit_conn_rate_privileged}})
-
-  # Total connections allowed per IP
-  set-var proc.rate_limit_total_conn_regular int({{haproxy.rate_limit_total_conn_regular}})
-  set-var proc.rate_limit_total_conn_privileged int({{haproxy.rate_limit_total_conn_privileged}})
-
-  # Total bandwidth allowed per IP
-  set-var proc.rate_limit_bytes_in_rate_regular int({{haproxy.rate_limit_bytes_in_rate_regular}})
-  set-var proc.rate_limit_bytes_in_rate_privileged int({{haproxy.rate_limit_bytes_in_rate_privileged}})
-  ##
-
 defaults
   mode tcp
   timeout connect 5s
@@ -32,7 +15,7 @@ listen of_proxy
   bind *:443
 
   # Define ACLs for privileged IPs
-  acl privileged_ip src var(proc.rate_limit_privileged_ips)
+  acl privileged_ip src {{haproxy.rate_limit_privileged_ips}}
 
   # Stick table to track connections and bandwidth
   stick-table type ip size 100k expire 5m store conn_rate(10s),bytes_in_rate(1m),conn_cur
@@ -40,17 +23,20 @@ listen of_proxy
   # Track connection statistics
   tcp-request connection track-sc0 src
 
-  tcp-request connection reject if !privileged_ip { sc0_conn_rate gt var(proc.rate_limit_conn_rate_regular) }
-  tcp-request connection reject if privileged_ip { sc0_conn_rate gt var(proc.rate_limit_conn_rate_privileged) }
+  # Allowed connection rate per IP
+  tcp-request connection reject if !privileged_ip { sc0_conn_rate gt {{haproxy.rate_limit_conn_rate_regular}} }
+  tcp-request connection reject if privileged_ip { sc0_conn_rate gt {{haproxy.rate_limit_conn_rate_privileged}} }
 
-  tcp-request connection reject if !privileged_ip { src_conn_cur gt var(proc.rate_limit_total_conn_regular) }
-  tcp-request connection reject if privileged_ip { src_conn_cur gt var(proc.rate_limit_total_conn_privileged) }
+  # Total connections allowed per IP
+  tcp-request connection reject if !privileged_ip { src_conn_cur gt {{haproxy.rate_limit_total_conn_regular}} }
+  tcp-request connection reject if privileged_ip { src_conn_cur gt {{haproxy.rate_limit_total_conn_privileged}} }
 
   # Track content statistics
   tcp-request content track-sc0 src
 
-  tcp-request content reject if !privileged_ip { sc0_bytes_in_rate gt var(rate_limit_bytes_in_rate_regular) }
-  tcp-request content reject if privileged_ip { sc0_bytes_in_rate gt var(rate_limit_bytes_in_rate_privileged) }
+  # Total bandwidth allowed per IP
+  tcp-request content reject if !privileged_ip { sc0_bytes_in_rate gt {{haproxy.rate_limit_bytes_in_rate_regular}} }
+  tcp-request content reject if privileged_ip { sc0_bytes_in_rate gt {{haproxy.rate_limit_bytes_in_rate_privileged}} }
 
   server of_proxy1 127.0.0.1:3443 check
 
