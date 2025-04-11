@@ -58,9 +58,12 @@ case "$1" in
     for file in $TEMPLATED_CONFIG_FILES; do
       /usr/bin/render-config.sh "${INIT_CONFIG_FILE}" "${file}.mustache" > "${file}" || optional_template $file
       log "Rendered ${file}."
+      rm -f "${file}.mustache"
     done
     for file in $TEMPLATED_CONFIG_FILES_UNSAFE; do
       /usr/bin/render-config.sh --unsafe "${INIT_CONFIG_FILE}" "${file}.mustache" > "${file}" || optional_template $file
+      log "Rendered ${file}."
+      rm -f "${file}.mustache"
     done
     chmod 600 /etc/disk-encryption/key
     log "All configs rendered successfully"
