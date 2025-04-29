@@ -3,8 +3,10 @@ export FLASHBOTS_ORDERFLOW_SIGNER_ADDRESS={{orderflow_proxy.flashbots_orderflow_
 export USER_LISTEN_ADDR={{orderflow_proxy.user_listen_addr}}
 export SYSTEM_LISTEN_ADDR={{orderflow_proxy.system_listen_addr}}
 export BUILDER_ENDPOINT={{orderflow_proxy.builder_endpoint}}
-export CERT_HOSTS=localhost,127.0.0.1,{{public_ip}},{{dns_name}}
-export BUILDER_CONFIGHUB_ENDPOINT={{orderflow_proxy.builder_confighub_endpoint}}
 export ORDERFLOW_ARCHIVE_ENDPOINT={{orderflow_proxy.orderflow_archive_endpoint}}
 export CONN_PER_PEER={{orderflow_proxy.conn_per_peer}}
 export MAX_USER_RPS={{orderflow_proxy.max_user_rps}}
+
+export CACERT_PATH=/persistent/autoprovisioning/cacert.pem
+export CERT_PATH=/persistent/autoprovisioning/cert.pem
+export CERT_KEY_PATH=/persistent/autoprovisioning/key.pem

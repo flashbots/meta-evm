@@ -8,11 +8,11 @@ inherit go-mod update-rc.d
 INITSCRIPT_NAME = "orderflow-proxy-init"
 INITSCRIPT_PARAMS = "defaults 99"
 
-GO_IMPORT = "github.com/flashbots/tdx-orderflow-proxy"
-SRC_URI = "git://${GO_IMPORT};protocol=https;branch=main \
+GO_IMPORT = "github.com/ruteri/buildernet-orderflow-proxy"
+SRC_URI = "git://${GO_IMPORT};protocol=https;branch=provisioning-poc \
            file://orderflow-proxy-init \
            file://orderflow-proxy.conf.mustache"
-SRCREV = "v0.3.3"
+SRCREV = "96c62a03003284451dc868b0ba6fa5f97eba8a20"
 
 GO_INSTALL = "${GO_IMPORT}/cmd/receiver-proxy"
 GO_LINKSHARED = ""
