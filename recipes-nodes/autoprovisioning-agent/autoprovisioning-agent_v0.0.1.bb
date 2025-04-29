@@ -11,7 +11,7 @@ INITSCRIPT_PARAMS = "defaults 87"
 GO_IMPORT = "github.com/ruteri/tee-service-provisioning-backend"
 SRC_URI = "git://${GO_IMPORT};protocol=https;branch=main \
            file://autoprovisioning-agent-init \
-           file://autoprovisioning-agent.conf.mustache"
+           file://autoprovisioning-agent.conf"
 SRCREV = "v0.0.1"
 
 GO_INSTALL = "${GO_IMPORT}/instanceutils/autoprovision"
@@ -34,7 +34,7 @@ do_install:append() {
 
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${WORKDIR}/${INITSCRIPT_NAME} ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
-    install -m 0640 ${WORKDIR}/autoprovisioning-agent.conf.mustache ${D}${sysconfdir}/autoprovisioning-agent.conf.mustache
+    install -m 0640 ${WORKDIR}/autoprovisioning-agent.conf ${D}${sysconfdir}/autoprovisioning-agent.conf
 }
 
-FILES:${PN} = "${sysconfdir}/init.d/${INITSCRIPT_NAME} ${bindir}/autoprovisioning-agent ${sysconfdir}/autoprovisioning-agent.conf.mustache"
+FILES:${PN} = "${sysconfdir}/init.d/${INITSCRIPT_NAME} ${bindir}/autoprovisioning-agent ${sysconfdir}/autoprovisioning-agent.conf"
