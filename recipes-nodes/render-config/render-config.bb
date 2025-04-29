@@ -46,4 +46,4 @@ RDEPENDS:${PN} += "jq curl coreutils mustache"
 inherit update-rc.d
 
 INITSCRIPT_NAME = "fetch-config"
-INITSCRIPT_PARAMS = "defaults 87"
+INITSCRIPT_PARAMS = "defaults 88"

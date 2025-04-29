@@ -11,10 +11,10 @@
 
 set -e
 
-INIT_CONFIG_FILE="/etc/init-config.json"
+INIT_CONFIG_FILE="/persistent/autoprovision/config"
 TEMPLATED_CONFIG_FILES="/etc/td-agent-bit/td-agent-bit.conf /etc/process-exporter/process-exporter.yaml /etc/prometheus/prometheus.yml /etc/rclone.conf /etc/orderflow-proxy.conf /etc/system-api/systemapi-config.toml /etc/rbuilder-bidding/rbuilder-bidding-token /etc/haproxy/haproxy.cfg /etc/td-agent-bit/aws-auth"
-TEMPLATED_CONFIG_FILES_UNSAFE="/etc/rbuilder-bidding/bidding-service.toml /etc/disk-encryption/key /etc/rbuilder.config"
-OPTIONAL_TEMPLATES="/etc/disk-encryption/key"
+TEMPLATED_CONFIG_FILES_UNSAFE="/etc/rbuilder-bidding/bidding-service.toml /etc/rbuilder.config"
+OPTIONAL_TEMPLATES=
 SYSTEM_API_FIFO=/var/volatile/system-api.fifo
 
 log() {
@@ -46,13 +46,8 @@ optional_template() {
 
 case "$1" in
   start)
-    log "Fetching configuration..."
-
-    (umask 0177 && touch "${INIT_CONFIG_FILE}")
-    curl -fsSL --retry 3 --retry-delay 60 --retry-connrefused \
-      -o "${INIT_CONFIG_FILE}" http://localhost:7937/api/l1-builder/v1/configuration
     if [ ! -s "${INIT_CONFIG_FILE}" ]; then
-      log "Failed to fetch configuration."
+      log "Configuration file missing."
       exit 1
     fi
     for file in $TEMPLATED_CONFIG_FILES; do
