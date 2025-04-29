@@ -1,8 +1,8 @@
 SUMMARY = "Reth"
 DESCRIPTION = "reth is the command line interface for running a full ethereum node implemented in rust."
 LICENSE = "MIT | Apache-2.0"
-LIC_FILES_CHKSUM = "file://LICENSE-MIT;md5=762893aeb79bf290840d33562df482fd \
-                    file://LICENSE-APACHE;md5=a343d9147ff9bc8b5864578c4e2118e1"
+LIC_FILES_CHKSUM = "file://LICENSE-MIT;md5=55bab29951be8eb492ce01d9f2d1207b \
+                    file://LICENSE-APACHE;md5=429946ac2c159e5ebab3baa325754225"
 
 inherit cargo_bin update-rc.d useradd
 
@@ -77,13 +77,13 @@ INHIBIT_PACKAGE_DEBUG_SPLIT = "0"
 python () {
     # Check if INCLUDE_RCLONE is set in the environment or in local.conf
     include_rclone = d.getVar('INCLUDE_RCLONE')
-    
+
     if include_rclone is None:
         # If not set, check the original environment
         origenv = d.getVar("BB_ORIGENV", False)
         if origenv:
             include_rclone = origenv.getVar('INCLUDE_RCLONE')
-    
+
     if include_rclone:
         # If INCLUDE_RCLONE is set (to any non-empty value), keep its value
         d.setVar('INCLUDE_RCLONE', include_rclone)
