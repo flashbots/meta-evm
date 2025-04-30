@@ -15,12 +15,14 @@ DESC="Orderflow Proxy"
 PIDFILE=/var/run/$NAME.pid
 LOGFILE=/var/log/$NAME.log
 ULIMIT_FD=65536
+OF_PROXY_DIR=/persistent/orderflow-proxy
 
 source /etc/orderflow-proxy.conf
 
 start() {
     echo -n "Starting $DESC: "
     echo "Starting $DESC" > /var/volatile/system-api.fifo
+    mkdir -p "$OF_PROXY_DIR"
     start-stop-daemon -S --make-pidfile -p $PIDFILE -m -b --exec /bin/sh -- -c "ulimit -n $ULIMIT_FD; exec $DAEMON >> $LOGFILE 2>&1"
     echo "$NAME."
 }
