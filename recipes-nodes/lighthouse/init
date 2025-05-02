@@ -37,12 +37,10 @@ monitor_and_restart() {
 start_lighthouse() {
 		start-stop-daemon -S --make-pidfile -p $PIDFILE -c $LIGHTHOUSE_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec ${DAEMON} \
 		bn \
-		--eth1 \
 		--checkpoint-sync-url https://sync-mainnet.beaconcha.in \
 		--execution-endpoint http://localhost:8551 \
 		--execution-jwt $JWT_SECRET_FILE \
 		--suggested-fee-recipient ${SUGGESTED_FEE_RECIPIENT} \
-		--http-allow-sync-stalled \
 		--always-prepare-payload \
 		--prepare-payload-lookahead 8000 \
 		--disable-deposit-contract-sync \

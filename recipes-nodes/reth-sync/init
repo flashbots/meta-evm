@@ -41,13 +41,13 @@ start() {
     RCLONE_RC_PASS=$(openssl rand -hex 16)
     install -m 600 <(printf "$RCLONE_RC_USERNAME:$(openssl passwd -apr1 $RCLONE_RC_PASS)\n") $RCLONE_RC_HTPASSWD_PATH
 
-    LATEST_META=$(rclone --config $RCLONE_CONFIG cat r2:chain-db-snapshots/reth-mainnet-full/latest_version.meta.txt)
+    LATEST_META=$(rclone --config $RCLONE_CONFIG cat r2:chain-db-snapshots/reth-mainnet-full-1-1-5/latest_version.meta.txt)
     log "Latest meta: $LATEST_META"
 
     DAEMON_ARGS="sync --rc --rc-htpasswd $RCLONE_RC_HTPASSWD_PATH --config $RCLONE_CONFIG -v -P --transfers=20 --multi-thread-streams 30 \
         --contimeout=10m --retries 10 --retries-sleep 60 --error-on-no-transfer --update --fast-list \
         --delete-during --disable-http2 --no-gzip-encoding \
-        --exclude 'files.txt' r2:chain-db-snapshots/reth-mainnet-full/$LATEST_META/ $RETH_DIR"
+        --exclude 'files.txt' r2:chain-db-snapshots/reth-mainnet-full-1-1-5/$LATEST_META/ $RETH_DIR"
 
     (
         $DAEMON $DAEMON_ARGS &> "$LOGFILE"

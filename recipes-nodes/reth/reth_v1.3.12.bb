@@ -2,4 +2,4 @@ include reth.inc
 
 FILESEXTRAPATHS:prepend := "${THISDIR}:"
 SRC_URI = "git://github.com/paradigmxyz/reth;protocol=https;branch=main"
-SRCREV = "v1.0.8"
+SRCREV = "v1.3.12"
