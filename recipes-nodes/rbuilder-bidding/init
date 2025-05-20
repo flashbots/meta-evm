@@ -26,6 +26,7 @@ start_builder_bidding() {
         -v $RUN_DIR:$RUN_DIR \
         --user $(id -u rbuilder):$(id -g rbuilder) \
         --log-opt path=$LOGFILE \
+        --network=none \
         ghcr.io/flashbots/rbuilder-bidding-service:$RBUILDER_BIDDING_VERSION /rbuilder-bidding/bidding-service.toml
 }
 
