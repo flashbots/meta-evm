@@ -37,7 +37,7 @@ log() {
     echo "$(date_log)$1" | tee -a $SYSTEM_API_FIFO
 }
 
-function toggle_rbuilder() {
+function check_rbuilder_enabled() {
   local bhub_config_file="$1"
   local rbuilder_enabled=$(cat "${bhub_config_file}" | jq -r '.rbuilder.enabled')
   if [ ! -d "${RBUILDER_PERSISTENT_DIR}" ]; then
@@ -61,7 +61,7 @@ function toggle_rbuilder() {
   fi
 }
 
-function update_subsidies_config() {
+function check_subsidies_config_update() {
   local bhub_config_file="$1"
   /usr/bin/render-config.sh --unsafe "${bhub_config_file}" /etc/rbuilder-bidding/bidding-service.toml.mustache > /tmp/bidding-service.toml.tmp
 
@@ -74,7 +74,7 @@ function update_subsidies_config() {
 
 case "$1" in
   start)
-    (umask 0177 && touch "${BHUB_CONFIG_FILE}")
+    (umask 0177 && touch "${BHUB_CONFIG_FILE}") # make received config readable only by root
     curl -fsSL -o "${BHUB_CONFIG_FILE}"  --retry 3 --retry-delay 5 --retry-connrefused "${BHUB_URL_PROXIED}"
 
     if [ ! -s "${BHUB_CONFIG_FILE}" ]; then
@@ -82,9 +82,9 @@ case "$1" in
       exit 1
     fi
 
-    toggle_rbuilder "${BHUB_CONFIG_FILE}"
+    check_rbuilder_enabled "${BHUB_CONFIG_FILE}"
 
-    update_subsidies_config "${BHUB_CONFIG_FILE}"
+    check_subsidies_config_update "${BHUB_CONFIG_FILE}"
 
     ;;
   stop)
