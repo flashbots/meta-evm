@@ -1,1 +1,1 @@
-PACKAGE_INSTALL:append = " rbuilder orderflow-proxy system-api ssh-key-injection haproxy rbuilder-status-watchdog"
+PACKAGE_INSTALL:append = " rbuilder orderflow-proxy system-api ssh-key-injection haproxy config-watchdog"
