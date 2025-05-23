@@ -1,0 +1,1 @@
+4 3 * * * /usr/bin/acme.sh --cron --home "/persistent/acme.sh" --log /var/log/acme.sh.log --log-level 1

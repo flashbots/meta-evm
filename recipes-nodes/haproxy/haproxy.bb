@@ -10,7 +10,7 @@ SRC_URI += "file://init \
             file://haproxy.cfg.mustache"
 
 INITSCRIPT_NAME = "haproxy"
-INITSCRIPT_PARAMS = "defaults 98"
+INITSCRIPT_PARAMS = "defaults 90"
 
 inherit update-rc.d
 
