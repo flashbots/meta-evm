@@ -11,20 +11,22 @@ SRCREV = "42bbd1b44af48a5accce07fa51740644b1c5f0a0"
 SRC_URI += "file://acme-le.cron \
             file://LICENSE \
             file://acme-le.env.mustache \
-            file://acme-le.sh"
+            file://acme-le.sh \
+            file://post-hook.sh"
 
 INITSCRIPT_NAME = "acme-le"
 INITSCRIPT_PARAMS = "defaults 91"
 
 inherit update-rc.d
 
-DEPENDS += "haproxy"
-RDEPENDS:${PN} += "haproxy"
+DEPENDS += " haproxy"
+RDEPENDS:${PN} += " haproxy socat"
 
 do_install() {
   install -d ${D}${sysconfdir}/init.d
-  install -d -m 0755 ${D}${sysconfdir}/acme.sh
+  install -d -m 0755 ${D}${sysconfdir}/acme.sh/deploy ${D}${sysconfdir}/acme.sh/hooks
   install -m 0755 ${WORKDIR}/deploy/haproxy.sh ${D}${sysconfdir}/acme.sh/deploy/haproxy.sh
+  install -m 0755 ${THISDIR}/post-hook.sh ${D}${sysconfdir}/acme.sh/hooks/post-hook.sh
   install -m 0755 ${WORKDIR}/acme.sh ${D}${bindir}/acme.sh
   install -m 0755 ${WORKDIR}/acme-le.sh ${D}${sysconfdir}/init.d/acme-le
   install -m 0644 ${THISDIR}/acme-le.env.mustache ${D}${sysconfdir}/acme.sh/acme-le.env.mustache
@@ -32,6 +34,7 @@ do_install() {
 }
 
 FILES:${PN} = "${D}${sysconfdir}/acme.sh/deploy/haproxy.sh \
+               ${D}${sysconfdir}/acme.sh/hooks/post-hook.sh \
                ${D}${bindir}/acme.sh \
                ${sysconfdir}/init.d/${INITSCRIPT_NAME} \
                ${D}${sysconfdir}/acme.sh/acme-le.env.mustache \
