@@ -1,5 +1,16 @@
 #!/bin/sh
-# TODO: backend healchecks
+### BEGIN INIT INFO
+# Provides:          acme-le
+# Required-Start:    $network
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Manage LetsEncrypt TLS certificate
+# Description:       Manage LetsEncrypt certificate for user orderflow
+### END INIT INFO
+
+set -e
+# TODO: backend healthchecks
 HAPROXY_ENV_FILE=/etc/haproxy/haproxy.env
 PRIV_KEY="${ACME_HOME}/key.pem"
 CERT_FILE="${ACME_HOME}/cert.pem"
@@ -58,35 +69,57 @@ function acme_sh_deploy_string_builder() {
   echo "$deploy_string"
 }
 
-mkdir -p $ACME_HOME
-acme.sh --home $ACME_HOME \
-  --register-account \
-  -m webmaster@buildernet.org \
-  --server letsencrypt \
-  --log $LOG_FILE --log-level 1
-grep -m 1 -o -E "ACCOUNT_THUMBPRINT='[^']*'" $LOG_FILE > $HAPROXY_ENV_FILE
-chmod 644 $HAPROXY_ENV_FILE
+case "$1" in
+  start)
 
-if [ ! -f "$PRIV_KEY" ]; then
-  openssl ecparam -name prime256v1 -genkey -noout -out $PRIV_KEY
+    mkdir -p $ACME_HOME
+    acme.sh --home $ACME_HOME \
+      --register-account \
+      -m webmaster@buildernet.org \
+      --server letsencrypt \
+      --log $LOG_FILE --log-level 1
+    grep -m 1 -o -E "ACCOUNT_THUMBPRINT='[^']*'" $LOG_FILE > $HAPROXY_ENV_FILE
+    chmod 644 $HAPROXY_ENV_FILE
 
-  subj_altnames=$(subj_altnames_string_builder "$DNS_NAMES")
-  openssl req -noenc -x509 -key $PRIV_KEY -out $CERT_FILE -sha256 -days 90 \
-    $subj_altnames
+    if [ -f "$PRIV_KEY" ]; then
+      log "Found existing private key. Skipping key generation."
+      exit 0
+    fi
 
-  openssl x509 -x509toreq -signkey $PRIV_KEY -in $CERT_FILE -out $CSR_FILE
+    openssl ecparam -name prime256v1 -genkey -noout -out $PRIV_KEY
 
-  acme.sh --home $ACME_HOME --sign-csr --csr $CSR_FILE --stateless \
-    --server letsencrypt \
-    --post-hook /etc/acme.sh/hooks/post-hook.sh \
-    --log $LOG_FILE --log-level 1
+    subj_altnames=$(subj_altnames_string_builder "$DNS_NAMES")
+    openssl req -noenc -x509 -key $PRIV_KEY -out $CERT_FILE -sha256 -days 3650 \
+      $subj_altnames
 
-  DEPLOY_HAPROXY_HOT_UPDATE=yes \
-  DEPLOY_HAPROXY_STATS_SOCKET=UNIX:/var/run/haproxy/admin.sock \
-  DEPLOY_HAPROXY_PEM_PATH=/etc/haproxy/certs \
-    acme.sh --home $ACME_HOME --deploy $(acme_sh_deploy_string_builder "$DNS_NAMES") \
-    --deploy-hook /etc/acme.sh/deploy/haproxy.sh \
-    --log $LOG_FILE --log-level 1
+    openssl x509 -x509toreq -signkey $PRIV_KEY -in $CERT_FILE -out $CSR_FILE
 
-  log "Issued and deployed TLS certificate for domains: $DNS_NAMES"
-fi
+    acme.sh --home $ACME_HOME --sign-csr --csr $CSR_FILE --stateless \
+      --server letsencrypt \
+      --post-hook /etc/acme.sh/hooks/post-hook.sh \
+      --log $LOG_FILE --log-level 1
+
+    DEPLOY_HAPROXY_HOT_UPDATE=yes \
+    DEPLOY_HAPROXY_STATS_SOCKET=UNIX:/var/run/haproxy/admin.sock \
+    DEPLOY_HAPROXY_PEM_PATH=/etc/haproxy/certs \
+      acme.sh --home $ACME_HOME --deploy $(acme_sh_deploy_string_builder "$DNS_NAMES") \
+      --deploy-hook /etc/acme.sh/deploy/haproxy.sh \
+      --log $LOG_FILE --log-level 1
+
+    log "Issued and deployed TLS certificate for domains: $DNS_NAMES"
+    ;;
+
+  stop)
+    echo "Nothing to stop."
+    ;;
+  restart|reload)
+    $0 stop
+    $0 start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+exit 0

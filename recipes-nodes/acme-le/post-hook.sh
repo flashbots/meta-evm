@@ -1,4 +1,6 @@
 #!/bin/sh
+set -eu -o pipefail
+
 source /etc/acme.sh/acme-le.env
 
 LOG_FILE="$LOG_DIR/acme.sh.log"
@@ -19,12 +21,16 @@ CERT_ESCAPED=$(sed 's/$/\\n/g' "$CERT_PATH" | tr -d '\n')
 curl -fsSL --retry 3 --retry-delay 60 --retry-connrefused \
   -H "Content-Type: application/json" \
   -d "{\"tls_cert\": \"$CERT_ESCAPED\"}" \
-  http://localhost:7937/api/l1-builder/v1/register_credentials/instance
+  http://localhost:7937/api/l1-builder/v1/register_credentials/instance || (
 
-if [ $? -ne 0 ]; then
   err_msg="Failed to register TLS certificate with BuilderHub."
   log "$err_msg" | tee -a "$LOG_FILE"
   exit 1
-fi
-
+)
 log "TLS certificate registered successfully with BuilderHub."
+
+EXPIRATION_DATE=$(acme.sh --list | grep "$MAIN_DOMAIN" | awk '{print $5}')
+EXPIRATION_DATE_UNIX_SECONDS=$(date -d "$EXPIRATION_DATE" +%s)
+printf "# HELP acme_le_cert_expiration_seconds The expiration date of the ACME certificate in Unix time.\n
+# TYPE acme_le_cert_expiration_seconds gauge\n
+acme_le_cert_expiration_seconds{domain=\"$MAIN_DOMAIN\"} $EXPIRATION_DATE_UNIX_SECONDS" > /var/lib/node_exporter/textfile_collector/acme_le_cert_expiration.prom
