@@ -21,4 +21,6 @@ do_install() {
     install -m 0644 ${THISDIR}/haproxy.cfg.mustache ${D}${sysconfdir}/haproxy/haproxy.cfg.mustache
 }
 
-FILES:${PN} = "${sysconfdir}/init.d/${INITSCRIPT_NAME} ${sysconfdir}/haproxy/haproxy.cfg.mustache"
+FILES:${PN} = "${sysconfdir}/init.d/${INITSCRIPT_NAME} \
+               ${sysconfdir}/haproxy/certs \
+               ${sysconfdir}/haproxy/haproxy.cfg.mustache"
