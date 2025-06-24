@@ -10,14 +10,11 @@
 ### END INIT INFO
 
 set -e
-# TODO: backend healthchecks
-HAPROXY_ENV_FILE=/etc/haproxy/haproxy.env
-PRIV_KEY="${ACME_HOME}/key.pem"
-CERT_FILE="${ACME_HOME}/cert.pem"
-CSR_FILE="${ACME_HOME}/csr.pem"
-LOG_FILE="$LOG_DIR/acme.sh.log"
 
 source /etc/acme.sh/acme-le.env
+
+HAPROXY_ENV_FILE=/etc/haproxy/haproxy.env
+LOG_FILE="$LOG_DIR/acme.sh.log"
 
 function log() {
   date_log() {
@@ -31,7 +28,7 @@ function subj_altnames_string_builder() {
   local dns_names="$1"
   local subj="$(echo "$dns_names" | cut -d',' -f1)"
   local subj_text="/O=BuilderNet/CN=${subj}"
-  local subj_altnames_text="-subj \"${subj_text}\""
+  local subj_altnames_text="-subj ${subj_text}"
 
   local old_ifs="$IFS"
   IFS=','
@@ -39,15 +36,15 @@ function subj_altnames_string_builder() {
   IFS="$old_ifs"
 
   if [ $# -ge 2 ]; then
-    local altnames_text="-addext \"subjectAltName="
+    local altnames_text="-addext subjectAltName="
 
     for name in "$@"; do
       altnames_text="${altnames_text}DNS:${name},"
     done
-
-    altnames_text="${altnames_text%?}\""
-    subj_altnames_text="${subj_altnames_text} ${altnames_text}"
   fi
+
+  altnames_text="${altnames_text%?}"
+  subj_altnames_text="${subj_altnames_text} ${altnames_text}"
 
   echo "$subj_altnames_text"
 }
@@ -92,18 +89,19 @@ case "$1" in
     openssl req -noenc -x509 -key $PRIV_KEY -out $CERT_FILE -sha256 -days 3650 \
       $subj_altnames
 
-    openssl x509 -x509toreq -signkey $PRIV_KEY -in $CERT_FILE -out $CSR_FILE
+    openssl x509 -x509toreq -signkey $PRIV_KEY -in $CERT_FILE -out $CSR_FILE \
+      -copy_extensions copy
 
-    acme.sh --home $ACME_HOME --sign-csr --csr $CSR_FILE --stateless \
-      --server letsencrypt \
+    acme.sh --home $ACME_HOME --sign-csr --csr $CSR_FILE --dns dns_cf \
+      --server letsencrypt_test --challenge-alias buildernet-org-acme-validation.org \
       --post-hook /etc/acme.sh/hooks/post-hook.sh \
       --log $LOG_FILE --log-level 1
 
     DEPLOY_HAPROXY_HOT_UPDATE=yes \
     DEPLOY_HAPROXY_STATS_SOCKET=UNIX:/var/run/haproxy/admin.sock \
-    DEPLOY_HAPROXY_PEM_PATH=/etc/haproxy/certs \
+    DEPLOY_HAPROXY_PEM_PATH=/usr/local/etc/haproxy/certs \
       acme.sh --home $ACME_HOME --deploy $(acme_sh_deploy_string_builder "$DNS_NAMES") \
-      --deploy-hook /etc/acme.sh/deploy/haproxy.sh \
+      --deploy-hook haproxy \
       --log $LOG_FILE --log-level 1
 
     log "Issued and deployed TLS certificate for domains: $DNS_NAMES"

@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eu -o pipefail
+set -eux -o pipefail
 
 source /etc/acme.sh/acme-le.env
 
@@ -29,8 +29,13 @@ curl -fsSL --retry 3 --retry-delay 60 --retry-connrefused \
 )
 log "TLS certificate registered successfully with BuilderHub."
 
-EXPIRATION_DATE=$(acme.sh --list | grep "$MAIN_DOMAIN" | awk '{print $5}')
+# Export cert expiration date as a metric
+EXPIRATION_DATE=$(acme.sh --home $ACME_HOME --list | grep "$MAIN_DOMAIN" | awk '{print $NF}')
 EXPIRATION_DATE_UNIX_SECONDS=$(date -d "$EXPIRATION_DATE" +%s)
-printf "# HELP acme_le_cert_expiration_seconds The expiration date of the ACME certificate in Unix time.\n
-# TYPE acme_le_cert_expiration_seconds gauge\n
-acme_le_cert_expiration_seconds{domain=\"$MAIN_DOMAIN\"} $EXPIRATION_DATE_UNIX_SECONDS" > /var/lib/node_exporter/textfile_collector/acme_le_cert_expiration.prom
+METRICS_FILE="/var/lib/node_exporter/textfile_collector/acme_le_cert_expiration.prom"
+printf "# HELP acme_le_cert_expiration_seconds The expiration date of the ACME certificate in Unix time.
+# TYPE acme_le_cert_expiration_seconds gauge
+acme_le_cert_expiration_seconds{domain=\"$MAIN_DOMAIN\"} $EXPIRATION_DATE_UNIX_SECONDS\n" > "$METRICS_FILE"
+chmod 644 "$METRICS_FILE"
+
+ln -fsr "$PRIV_KEY" "$(dirname $CERT_PATH)/${MAIN_DOMAIN}.key"

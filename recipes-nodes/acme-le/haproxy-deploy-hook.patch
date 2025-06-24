@@ -1,0 +1,15 @@
+Upstream-Status: Inappropriate [embedded specific]
+==================================================
+diff --git a/deploy/haproxy.sh b/deploy/haproxy.sh
+index 19509e3b..ff7ce02d 100644
+--- a/deploy/haproxy.sh
++++ b/deploy/haproxy.sh
+@@ -212,7 +212,7 @@ haproxy_deploy() {
+   # Move PEM file into place
+   _info "Moving new certificate into place"
+   _debug _pem "${_pem}"
+-  cat "${_temppem}" >"${_pem}"
++  install -m 0640 -o root -g 99 "${_temppem}" "${_pem}"
+   _ret=$?
+
+   # Clean up temp file

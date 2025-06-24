@@ -15,6 +15,7 @@ LOG_DIR=/var/log/containers
 LOGFILE="$LOG_DIR/haproxy.log"
 HAPROXY_VERSION=3.0.6@sha256:0f3127e63b00982c3f12b2a9a17ecbd0595003a191ec1cb403741a692f7a39a9
 HAPROXY_ENV_FILE=/etc/haproxy/haproxy.env
+HAPROXY_CONTAINER_USERID=99
 
 start_haproxy() {
     podman run -dt --rm --restart on-failure --name $NAME \
@@ -30,7 +31,9 @@ start() {
     echo -n "Starting $DESC: "
     echo "Starting $DESC" > /var/volatile/system-api.fifo
     chmod 644 /etc/haproxy/haproxy.cfg
-    install -d -m 755 $LOG_DIR /var/run/haproxy
+    install -d -m 755 $LOG_DIR
+    install -d -m 700 -o $HAPROXY_CONTAINER_USERID -g $HAPROXY_CONTAINER_USERID /var/run/haproxy/
+    mkdir -p /usr/local/etc/haproxy && ln -sf /etc/haproxy/certs /usr/local/etc/haproxy/certs
     start_haproxy
     chmod 644 $LOGFILE
     echo "$NAME."
