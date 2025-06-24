@@ -26,7 +26,7 @@ RDEPENDS:${PN} += " haproxy socat"
 
 do_install() {
   install -d ${D}${sysconfdir}/init.d ${D}${bindir} ${D}${sysconfdir}/cron.d
-  install -d -m 0755 ${D}${bindir}/acme.sh/deploy ${D}${bindir}/acme.sh/dnsapi ${D}${sysconfdir}/acme.sh/hooks
+  install -d -m 0755 ${D}${bindir}/deploy ${D}${bindir}/dnsapi ${D}${sysconfdir}/acme.sh/hooks
   install -m 0755 ${S}/deploy/haproxy.sh ${D}${bindir}/deploy/haproxy.sh
   install -m 0755 ${S}/dnsapi/dns_cf.sh ${D}${bindir}/dnsapi/dns_cf.sh
   install -m 0755 ${S}/acme.sh ${D}${bindir}/acme.sh
@@ -36,8 +36,8 @@ do_install() {
   install -m 0640 ${WORKDIR}/acme-le.cron ${D}${sysconfdir}/cron.d/acme-le
 }
 
-FILES:${PN} = "${bindir}/acme.sh/deploy/haproxy.sh \
-               ${bindir}/acme.sh/dnsapi/dns_cf.sh \
+FILES:${PN} = "${bindir}/deploy/haproxy.sh \
+               ${bindir}/dnsapi/dns_cf.sh \
                ${sysconfdir}/acme.sh/hooks/post-hook.sh \
                ${bindir}/acme.sh \
                ${sysconfdir}/init.d/${INITSCRIPT_NAME} \
