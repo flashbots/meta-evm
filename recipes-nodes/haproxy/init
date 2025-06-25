@@ -33,7 +33,7 @@ start() {
     chmod 644 /etc/haproxy/haproxy.cfg
     install -d -m 755 $LOG_DIR
     install -d -m 700 -o $HAPROXY_CONTAINER_USERID -g $HAPROXY_CONTAINER_USERID /var/run/haproxy/
-    mkdir -p /usr/local/etc/haproxy && ln -sf /etc/haproxy/certs /usr/local/etc/haproxy/certs
+    mkdir -p /usr/local/etc/haproxy && ln -sf /etc/haproxy/certs /usr/local/etc/haproxy
     start_haproxy
     chmod 644 $LOGFILE
     echo "$NAME."

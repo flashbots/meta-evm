@@ -9,7 +9,7 @@ index 19509e3b..ff7ce02d 100644
    _info "Moving new certificate into place"
    _debug _pem "${_pem}"
 -  cat "${_temppem}" >"${_pem}"
-+  install -m 0640 -o root -g 99 "${_temppem}" "${_pem}"
++  /usr/bin/install -m 0640 -o root -g 99 --no-target-directory "${_temppem}" "${_pem}"
    _ret=$?
 
    # Clean up temp file

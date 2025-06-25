@@ -50,6 +50,7 @@ listen default
 
   http-request return status 200 content-type text/plain lf-string "%[path,field(-1,/)].${ACCOUNT_THUMBPRINT}\n" if is_acme_challenge
   http-request return status 200 content-type text/plain string "OK\n" if { path '/livez' }
+  http-request return status 200 content-type text/plain string "${ACCOUNT_URL}\n" if { path '/acme-account-url' }
 
   default_backend of_proxy
 

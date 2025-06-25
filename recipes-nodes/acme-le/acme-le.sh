@@ -70,12 +70,13 @@ case "$1" in
   start)
 
     mkdir -p $ACME_HOME
+    acme.sh --home $ACME_HOME --set-default-ca  --server letsencrypt
     acme.sh --home $ACME_HOME \
       --register-account \
       -m webmaster@buildernet.org \
-      --server letsencrypt \
       --log $LOG_FILE --log-level 1
     grep -m 1 -o -E "ACCOUNT_THUMBPRINT='[^']*'" $LOG_FILE > $HAPROXY_ENV_FILE
+    find $ACME_HOME -name ca.conf -exec grep ACCOUNT_URL {} \; >> $HAPROXY_ENV_FILE
     chmod 644 $HAPROXY_ENV_FILE
 
     if [ -f "$PRIV_KEY" ]; then
@@ -93,7 +94,7 @@ case "$1" in
       -copy_extensions copy
 
     acme.sh --home $ACME_HOME --sign-csr --csr $CSR_FILE --dns dns_cf \
-      --server letsencrypt_test --challenge-alias buildernet-org-acme-validation.org \
+      --challenge-alias buildernet-org-acme-validation.org \
       --post-hook /etc/acme.sh/hooks/post-hook.sh \
       --log $LOG_FILE --log-level 1
 

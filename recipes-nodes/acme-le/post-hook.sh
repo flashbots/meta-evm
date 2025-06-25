@@ -30,7 +30,7 @@ curl -fsSL --retry 3 --retry-delay 60 --retry-connrefused \
 log "TLS certificate registered successfully with BuilderHub."
 
 # Export cert expiration date as a metric
-EXPIRATION_DATE=$(acme.sh --home $ACME_HOME --list | grep "$MAIN_DOMAIN" | awk '{print $NF}')
+EXPIRATION_DATE=$(openssl x509 -enddate -noout -in "$CERT_PATH" | cut -d= -f2)
 EXPIRATION_DATE_UNIX_SECONDS=$(date -d "$EXPIRATION_DATE" +%s)
 METRICS_FILE="/var/lib/node_exporter/textfile_collector/acme_le_cert_expiration.prom"
 printf "# HELP acme_le_cert_expiration_seconds The expiration date of the ACME certificate in Unix time.
