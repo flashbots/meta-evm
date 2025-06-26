@@ -23,6 +23,8 @@ RETH_DIR=/persistent/reth
 RETH_USER=reth
 ULIMIT_FD=65536
 
+source /etc/rbuilder.env
+
 monitor_and_restart() {
     while true; do
         if ! pgrep -f "$DAEMON" > /dev/null; then
