@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eux -o pipefail
+set -eu -o pipefail
 
 source /etc/acme.sh/acme-le.env
 

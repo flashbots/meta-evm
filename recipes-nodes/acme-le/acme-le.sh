@@ -75,8 +75,7 @@ case "$1" in
       --register-account \
       -m webmaster@buildernet.org \
       --log $LOG_FILE --log-level 1
-    grep -m 1 -o -E "ACCOUNT_THUMBPRINT='[^']*'" $LOG_FILE > $HAPROXY_ENV_FILE
-    find $ACME_HOME -name ca.conf -exec grep ACCOUNT_URL {} \; >> $HAPROXY_ENV_FILE
+    find $ACME_HOME -name ca.conf -exec grep ACCOUNT_URL {} \; > $HAPROXY_ENV_FILE
     service haproxy restart
 
     if [ -f "$PRIV_KEY" ]; then

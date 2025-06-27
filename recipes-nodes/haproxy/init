@@ -33,7 +33,9 @@ start() {
     chmod 644 /etc/haproxy/haproxy.cfg
     install -d -m 755 $LOG_DIR
     install -d -m 750 -o $HAPROXY_CONTAINER_USERID -g $HAPROXY_CONTAINER_USERID /var/run/haproxy/
-    install -m 640 -o $HAPROXY_CONTAINER_USERID -g $HAPROXY_CONTAINER_USERID /dev/null $HAPROXY_ENV_FILE
+    if [ ! -f $HAPROXY_ENV_FILE ]; then
+        install -m 640 -o $HAPROXY_CONTAINER_USERID -g $HAPROXY_CONTAINER_USERID /dev/null $HAPROXY_ENV_FILE
+    fi
     mkdir -p /usr/local/etc/haproxy
     ln -sf /etc/haproxy/certs /usr/local/etc/haproxy
     ln -sf /etc/haproxy/html /usr/local/etc/haproxy
