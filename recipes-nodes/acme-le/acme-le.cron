@@ -1,0 +1,1 @@
+4 3 * * * root /usr/bin/acme.sh --home /persistent/acme.sh --log /var/log/acme.sh.log --log-level 1 --renew-all
