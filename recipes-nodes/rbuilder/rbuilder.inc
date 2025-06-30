@@ -108,6 +108,7 @@ do_install:append() {
     # Install config files owned by root, readable by rbuilder
     install -m 0644 ${THISDIR}/config.mustache ${D}${sysconfdir}/rbuilder.config.mustache
     install -m 0644 ${THISDIR}/config.mustache ${D}${sysconfdir}/rbuilder.config
+    install -m 0644 ${THISDIR}/env.mustache ${D}${sysconfdir}/rbuilder.env.mustache
 
     # Ensure rbuilder can read these files
     chown rbuilder:rbuilder ${D}${sysconfdir}/rbuilder.config
@@ -121,3 +122,4 @@ FILES:${PN} += "${bindir}/rbuilder"
 FILES:${PN} += "${sysconfdir}/init.d/rbuilder"
 FILES:${PN} += "${sysconfdir}/rbuilder.config.mustache"
 FILES:${PN} += "${sysconfdir}/rbuilder.config"
+FILES:${PN} += "${sysconfdir}/rbuilder.env.mustache"
