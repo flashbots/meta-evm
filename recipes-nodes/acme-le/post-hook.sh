@@ -38,4 +38,5 @@ printf "# HELP acme_le_cert_expiration_seconds The expiration date of the ACME c
 acme_le_cert_expiration_seconds{domain=\"$MAIN_DOMAIN\"} $EXPIRATION_DATE_UNIX_SECONDS\n" > "$METRICS_FILE"
 chmod 644 "$METRICS_FILE"
 
+# Create a symlink to the private key so acme.sh can find it
 ln -fsr "$PRIV_KEY" "$(dirname $CERT_PATH)/${MAIN_DOMAIN}.key"
