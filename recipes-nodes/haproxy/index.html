@@ -108,8 +108,7 @@
             <h2>Documentation</h2>
             <ul class="links-list">
                 <li><a href="https://buildernet.org/docs/send-orderflow">buildernet.org/docs/send-orderflow</a></li>
-                <li><a href="https://buildernet.org">buildernet.org</a></li>
-                <li><a href="https://collective.flashbots.net/c/buildernet/31">Forum</a></li>
+                <li><a href="https://buildernet.org">buildernet.org</a>, <a href="https://collective.flashbots.net/c/buildernet/31">forum</a></li>
             </ul>
         </section>
         <hr>
@@ -117,9 +116,7 @@
         <section class="section">
             <h2>Sending Orderflow to BuilderNet</h2>
 
-            <h3>Example <span class="code-tag">curl</span> Request</h3>
             <pre>curl https://_BUILDERNET_INSTANCE_ \
-    --cacert builder-cert.pem \ # or using --insecure
     --header 'Content-Type: application/json' \
     --header 'X-Flashbots-Signature: _public_key_address_:_signature_' \
     --data '{
@@ -127,13 +124,15 @@
         "jsonrpc": "2.0",
         "method": "eth_sendBundle",
         "params": [{
-            "txs": [
-                "0x100000...", "0x200000..."
-            ],
             "blockNumber": "0x1361bd3"
+            "txs": [
+                "0x100000...",
+                "0x200000..."
+            ],
         }]
     }'
 </pre>
+            <p>To require the attested server certificate, you can use the <tt>--cacert builder-cert.pem</tt> option with <tt>curl</tt>.</p>
             <p>See also the full documentation at
             <ul>
                 <li><a href="https://buildernet.org/docs/api">buildernet.org/docs/api</a></li>
@@ -141,10 +140,6 @@
             </ul>
             </p>
 
-            <h3>Downloading the TLS certificate</h3>
-
-            <p>You can get the TLS certificate through a TEE-attested channel (see "TEE Proof Validation" below), or download it directly with <tt>curl</tt>:</p>
-            <pre>curl -w %{certs} -k https://_BUILDERNET_INSTANCE_</pre>
 
             <div class="note">
                 <strong>Note:</strong> Currently, requests are rate-limited to 3 requests / IP / second. This is expected to be raised soon.
