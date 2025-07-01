@@ -7,18 +7,23 @@ FILESEXTRAPATHS:prepend := "${THISDIR}:"
 
 SRC_URI += "file://init \
             file://LICENSE \
-            file://haproxy.cfg.mustache"
+            file://haproxy.cfg.mustache \
+            file://index.html"
 
 INITSCRIPT_NAME = "haproxy"
-INITSCRIPT_PARAMS = "defaults 98"
+INITSCRIPT_PARAMS = "defaults 90"
 
 inherit update-rc.d
 
 do_install() {
     install -d ${D}${sysconfdir}/init.d
-    install -d -m 0755 ${D}${sysconfdir}/haproxy
+    install -d -m 0755 ${D}${sysconfdir}/haproxy/certs ${D}${sysconfdir}/haproxy/html
     install -m 0755 ${WORKDIR}/init ${D}${sysconfdir}/init.d/haproxy
     install -m 0644 ${THISDIR}/haproxy.cfg.mustache ${D}${sysconfdir}/haproxy/haproxy.cfg.mustache
+    install -m 0644 ${THISDIR}/index.html ${D}${sysconfdir}/haproxy/html/index.html
 }
 
-FILES:${PN} = "${sysconfdir}/init.d/${INITSCRIPT_NAME} ${sysconfdir}/haproxy/haproxy.cfg.mustache"
+FILES:${PN} = "${sysconfdir}/init.d/${INITSCRIPT_NAME} \
+               ${sysconfdir}/haproxy/certs \
+               ${sysconfdir}/haproxy/haproxy.cfg.mustache \
+               ${sysconfdir}/haproxy/html/index.html"
