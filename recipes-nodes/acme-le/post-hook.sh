@@ -40,3 +40,7 @@ chmod 644 "$METRICS_FILE"
 
 # Create a symlink to the private key so acme.sh can find it
 ln -fsr "$PRIV_KEY" "$(dirname $CERT_PATH)/${MAIN_DOMAIN}.key"
+
+# Copy Let's Encrypt certificate to HAProxy certs directory to serve
+# it through CVM proxy.
+install -m 644 --no-target-directory "$CERT_PATH" /etc/haproxy/static/le.cer
