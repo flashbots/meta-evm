@@ -43,4 +43,4 @@ ln -fsr "$PRIV_KEY" "$(dirname $CERT_PATH)/${MAIN_DOMAIN}.key"
 
 # Copy Let's Encrypt certificate to HAProxy certs directory to serve
 # it through CVM proxy.
-install -m 644 --no-target-directory "$CERT_PATH" /etc/haproxy/certs/le.cer
+install -m 644 --no-target-directory "$CERT_PATH" /etc/haproxy/static/le.cer
