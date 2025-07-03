@@ -17,7 +17,7 @@ inherit update-rc.d
 
 do_install() {
     install -d ${D}${sysconfdir}/init.d
-    install -d -m 0755 ${D}${sysconfdir}/haproxy/certs ${D}${sysconfdir}/haproxy/html
+    install -d -m 0755 ${D}${sysconfdir}/haproxy/certs ${D}${sysconfdir}/haproxy/static
     install -m 0755 ${WORKDIR}/init ${D}${sysconfdir}/init.d/haproxy
     install -m 0644 ${THISDIR}/haproxy.cfg.mustache ${D}${sysconfdir}/haproxy/haproxy.cfg.mustache
     install -m 0644 ${THISDIR}/index.html ${D}${sysconfdir}/haproxy/static/index.html

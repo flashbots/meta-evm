@@ -38,7 +38,7 @@ start() {
     fi
     mkdir -p /usr/local/etc/haproxy
     ln -sf /etc/haproxy/certs /usr/local/etc/haproxy
-    ln -sf /etc/haproxy/html /usr/local/etc/haproxy
+    ln -sf /etc/haproxy/static /usr/local/etc/haproxy
     start_haproxy
     chmod 644 $LOGFILE
     echo "$NAME."
