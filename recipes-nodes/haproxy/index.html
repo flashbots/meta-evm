@@ -124,15 +124,16 @@
         "jsonrpc": "2.0",
         "method": "eth_sendBundle",
         "params": [{
-            "blockNumber": "0x1361bd3"
+            "blockNumber": "0x1361bd3",
             "txs": [
                 "0x100000...",
                 "0x200000..."
-            ],
+            ]
         }]
     }'
 </pre>
-            <p>To require the attested server certificate, you can use the <tt>--cacert builder-cert.pem</tt> option with <tt>curl</tt>.</p>
+
+            <p>You can use the <tt>--cacert builder-cert.pem</tt> option with <tt>curl</tt> to verify the attested TLS certificate of the BuilderNet node.</p>
             <p>See also the full documentation at
             <ul>
                 <li><a href="https://buildernet.org/docs/api">buildernet.org/docs/api</a></li>
