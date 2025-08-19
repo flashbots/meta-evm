@@ -21,7 +21,9 @@ RBUILDER_PERSISTENT_DIR=/persistent/rbuilder
 ETH_GROUP=eth
 RETH_DIR=/persistent/reth
 RETH_USER=reth
-ULIMIT_FD=65536
+ULIMIT_FD=1048576
+
+source /etc/rbuilder.env
 
 monitor_and_restart() {
     while true; do

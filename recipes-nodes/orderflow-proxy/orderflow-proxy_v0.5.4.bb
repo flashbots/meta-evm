@@ -12,7 +12,7 @@ GO_IMPORT = "github.com/flashbots/tdx-orderflow-proxy"
 SRC_URI = "git://${GO_IMPORT};protocol=https;branch=main \
            file://orderflow-proxy-init \
            file://orderflow-proxy.conf.mustache"
-SRCREV = "v0.3.5"
+SRCREV = "v0.5.4"
 
 GO_INSTALL = "${GO_IMPORT}/cmd/receiver-proxy"
 GO_LINKSHARED = ""
