@@ -17,8 +17,8 @@ BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/rec
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 SRC_URI += "file://init"
-# SRC_URI += "file://config.toml.mustache"
-# SRC_URI += "file://env.mustache"
+SRC_URI += "file://config.toml.mustache"
+SRC_URI += "file://env.mustache"
 S = "${WORKDIR}/git"
 
 INITSCRIPT_NAME = "bid-scraper"
