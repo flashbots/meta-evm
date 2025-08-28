@@ -101,6 +101,9 @@ do_compile:prepend() {
 # Additional Cargo build arguments
 EXTRA_OECARGO_BUILDARGS += "--features modern --frozen"
 
+# Build only rbuilder package
+EXTRA_OECARGO_BUILDARGS += "--package rbuilder"
+
 do_install:append() {
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/rbuilder
