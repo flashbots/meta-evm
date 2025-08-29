@@ -1,6 +1,6 @@
 SUMMARY = "Bid Scraper"
 DESCRIPTION = "Bid scraper service"
-HOMEPAGE = "https://github.com/flashbots/rbuilder-operator"
+HOMEPAGE = "https://github.com/flashbots/rbuilder"
 LICENSE="CLOSED"
 LIC_FILES_CHKSUM=""
 
@@ -43,7 +43,7 @@ RUSTFLAGS += "-C link-arg=-Wl,--build-id=none"
 # Use a consistent symbol mangling version
 RUSTFLAGS += "-C symbol-mangling-version=v0"
 # Remap the build path to a generic path
-RUSTFLAGS += "--remap-path-prefix=${WORKDIR}=/usr/src/rbuilder-operator"
+RUSTFLAGS += "--remap-path-prefix=${WORKDIR}=/usr/src/rbuilder"
 
 # Cargo profile settings for release builds
 # Optimize for size
@@ -108,13 +108,15 @@ EXTRA_OECARGO_BUILDARGS += "--package bid-scraper"
 
 do_install:append() {
     install -d ${D}${sysconfdir}/init.d
-    install -d ${D}${sysconfdir}/bid-scraper
-    install -m 0755 ${WORKDIR}/init ${D}${sysconfdir}/init.d/bid-scraper
+    install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/bid-scraper
 
-    install -m 0600 ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml.mustache
-    install -m 0600 ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml
-    install -m 0600 ${THISDIR}/env.mustache         ${D}${sysconfdir}/bid-scraper/env.mustache
-    chown -R bid-scraper:bid-scraper ${D}${sysconfdir}/bid-scraper/*
+    # Install config files owned by root, readable by bid-scraper
+    install -d ${D}${sysconfdir}/bid-scraper
+    install -m 0644 ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml.mustache
+    install -m 0644 ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml
+    install -m 0644 ${THISDIR}/env.mustache         ${D}${sysconfdir}/bid-scraper/env.mustache
+
+    chown -R bid-scraper:bid-scraper ${D}${sysconfdir}/bid-scraper/config.toml
 }
 
 # Ensure do_install task is re-run if CARGO_TARGET_SUBDIR changes
