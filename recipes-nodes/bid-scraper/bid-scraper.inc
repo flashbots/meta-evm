@@ -103,10 +103,11 @@ do_compile:prepend() {
 EXTRA_OECARGO_BUILDARGS += "--frozen --package bid-scraper --bin bid-scraper"
 
 do_install() {
+    # Install the service
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/bid-scraper
 
-    # Install the bid-scraper binary
+    # Install the binary
     install -d ${D}${bindir}
     install -m 0755 ${B}/${CARGO_TARGET_SUBDIR}/bid-scraper ${D}${bindir}/bid-scraper
 
@@ -116,9 +117,9 @@ do_install() {
     install -m 0644 ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml
     install -m 0644 ${THISDIR}/env.mustache         ${D}${sysconfdir}/bid-scraper/env.mustache
 
-    chown   bid-scraper:bid-scraper     ${D}${sysconfdir}/bid-scraper/config.toml
-    chown   bid-scraper:bid-scraper     ${D}${sysconfdir}/bid-scraper/config.toml.mustache
-    chown   bid-scraper:bid-scraper     ${D}${sysconfdir}/bid-scraper/env.mustache
+    chown bid-scraper:bid-scraper ${D}${sysconfdir}/bid-scraper/config.toml
+    chown bid-scraper:bid-scraper ${D}${sysconfdir}/bid-scraper/config.toml.mustache
+    chown bid-scraper:bid-scraper ${D}${sysconfdir}/bid-scraper/env.mustache
 }
 
 # Ensure do_install task is re-run if CARGO_TARGET_SUBDIR changes
