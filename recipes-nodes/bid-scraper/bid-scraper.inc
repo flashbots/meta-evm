@@ -10,7 +10,7 @@ inherit cargo_bin update-rc.d useradd
 do_compile[network] = "1"
 
 DEPENDS += "libffi openssl eth-group protobuf-native"
-RDEPENDS:${PN} += "libffi openssl eth-group reth cvm-reverse-proxy-server cvm-reverse-proxy-client render-config rbuilder"
+RDEPENDS:${PN} += "libffi openssl eth-group reth cvm-reverse-proxy-server cvm-reverse-proxy-client render-config"
 
 export BINDGEN_EXTRA_CLANG_ARGS
 BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/recipe-sysroot/usr/include"
@@ -43,7 +43,7 @@ RUSTFLAGS += "-C link-arg=-Wl,--build-id=none"
 # Use a consistent symbol mangling version
 RUSTFLAGS += "-C symbol-mangling-version=v0"
 # Remap the build path to a generic path
-RUSTFLAGS += "--remap-path-prefix=${WORKDIR}=/usr/src/rbuilder"
+RUSTFLAGS += "--remap-path-prefix=${WORKDIR}=/usr/src/bid-scraper"
 
 # Cargo profile settings for release builds
 # Optimize for size
@@ -100,23 +100,25 @@ do_compile:prepend() {
 }
 
 # Additional Cargo build arguments
-EXTRA_OECARGO_BUILDARGS += "--features modern --frozen"
+EXTRA_OECARGO_BUILDARGS += "--frozen --package bid-scraper --bin bid-scraper"
 
-# Build only bid-scraper package
-EXTRA_OECARGO_BUILDARGS += "--package bid-scraper"
-
-
-do_install:append() {
+do_install() {
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/bid-scraper
 
+    # Install the bid-scraper binary
+    install -d ${D}${bindir}
+    install -m 0755 ${B}/${CARGO_TARGET_SUBDIR}/bid-scraper ${D}${bindir}/bid-scraper
+
     # Install config files owned by root, readable by bid-scraper
-    install -d ${D}${sysconfdir}/bid-scraper
+    install -m 0755 -d ${D}${sysconfdir}/bid-scraper
     install -m 0644 ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml.mustache
     install -m 0644 ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml
     install -m 0644 ${THISDIR}/env.mustache         ${D}${sysconfdir}/bid-scraper/env.mustache
 
-    chown -R bid-scraper:bid-scraper ${D}${sysconfdir}/bid-scraper/config.toml
+    chown   bid-scraper:bid-scraper     ${D}${sysconfdir}/bid-scraper/config.toml
+    chown   bid-scraper:bid-scraper     ${D}${sysconfdir}/bid-scraper/config.toml.mustache
+    chown   bid-scraper:bid-scraper     ${D}${sysconfdir}/bid-scraper/env.mustache
 }
 
 # Ensure do_install task is re-run if CARGO_TARGET_SUBDIR changes
