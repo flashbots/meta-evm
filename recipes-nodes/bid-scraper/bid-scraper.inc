@@ -114,7 +114,7 @@ do_install() {
     # Install config files owned by root, readable by bid-scraper
     install -m 0755 -d ${D}${sysconfdir}/bid-scraper
     install -m 0644 ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml.mustache
-    install -m 0644 ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml
+    install -m 0644 /dev/null ${D}${sysconfdir}/bid-scraper/config.toml
     install -m 0644 ${THISDIR}/env.mustache         ${D}${sysconfdir}/bid-scraper/env.mustache
 
     chown bid-scraper:bid-scraper ${D}${sysconfdir}/bid-scraper/config.toml
