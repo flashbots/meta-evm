@@ -111,17 +111,12 @@ do_install() {
     install -d ${D}${bindir}
     install -m 0755 ${B}/${CARGO_TARGET_SUBDIR}/bid-scraper ${D}${bindir}/bid-scraper
 
-    # Install config files owned by root, readable by bid-scraper
-    install -m 0755 -d ${D}${sysconfdir}/bid-scraper
-    install -m 0644 ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml.mustache
-    install -m 0644 ${THISDIR}/env.mustache         ${D}${sysconfdir}/bid-scraper/env.mustache
-    install -m 0644 /dev/null                       ${D}${sysconfdir}/bid-scraper/config.toml
-    install -m 0640 /dev/null                       ${D}${sysconfdir}/bid-scraper/env
-
-    chown bid-scraper:bid-scraper ${D}${sysconfdir}/bid-scraper/config.toml
-    chown bid-scraper:bid-scraper ${D}${sysconfdir}/bid-scraper/config.toml.mustache
-    chown bid-scraper:bid-scraper ${D}${sysconfdir}/bid-scraper/env.mustache
-    chown bid-scraper:bid-scraper ${D}${sysconfdir}/bid-scraper/env
+    # Install config files
+    install -m 0755 -o bid-scraper -g bid-scraper -d ${D}${sysconfdir}/bid-scraper
+    install -m 0644 -o bid-scraper -g bid-scraper    ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml.mustache
+    install -m 0644 -o bid-scraper -g bid-scraper    ${THISDIR}/env.mustache         ${D}${sysconfdir}/bid-scraper/env.mustache
+    install -m 0644 -o bid-scraper -g bid-scraper    /dev/null                       ${D}${sysconfdir}/bid-scraper/config.toml
+    install -m 0640 -o bid-scraper -g bid-scraper    /dev/null                       ${D}${sysconfdir}/bid-scraper/env
 }
 
 # Ensure do_install task is re-run if CARGO_TARGET_SUBDIR changes
