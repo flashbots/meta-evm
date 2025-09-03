@@ -1,6 +1,6 @@
-SUMMARY = "Rust Builder"
-DESCRIPTION = "Rust builder running with a full ethereum node (reth) implemented in rust."
-HOMEPAGE = "https://github.com/flashbots/rbuilder-operator"
+SUMMARY = "Bid Scraper"
+DESCRIPTION = "Bid scraper service"
+HOMEPAGE = "https://github.com/flashbots/rbuilder"
 LICENSE="CLOSED"
 LIC_FILES_CHKSUM=""
 
@@ -10,21 +10,22 @@ inherit cargo_bin update-rc.d useradd
 do_compile[network] = "1"
 
 DEPENDS += "libffi openssl eth-group protobuf-native"
-RDEPENDS:${PN} += "libffi openssl eth-group reth cvm-reverse-proxy-server cvm-reverse-proxy-client render-config rbuilder-bidding"
+RDEPENDS:${PN} += "libffi openssl eth-group reth cvm-reverse-proxy-server cvm-reverse-proxy-client render-config"
 
 export BINDGEN_EXTRA_CLANG_ARGS
 BINDGEN_EXTRA_CLANG_ARGS = "--sysroot=${WORKDIR}/recipe-sysroot -I${WORKDIR}/recipe-sysroot/usr/include"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 SRC_URI += "file://init"
-SRC_URI += "file://config.mustache"
+SRC_URI += "file://config.toml.mustache"
+SRC_URI += "file://env.mustache"
 S = "${WORKDIR}/git"
 
-INITSCRIPT_NAME = "rbuilder"
+INITSCRIPT_NAME = "bid-scraper"
 INITSCRIPT_PARAMS = "defaults 98"
 
 USERADD_PACKAGES = "${PN}"
-USERADD_PARAM:${PN} = "-r -s /bin/false -G eth rbuilder"
+USERADD_PARAM:${PN} = "-r -s /bin/false -G eth bid-scraper"
 
 # Specify the toolchain to use
 TOOLCHAIN = "clang"
@@ -42,7 +43,7 @@ RUSTFLAGS += "-C link-arg=-Wl,--build-id=none"
 # Use a consistent symbol mangling version
 RUSTFLAGS += "-C symbol-mangling-version=v0"
 # Remap the build path to a generic path
-RUSTFLAGS += "--remap-path-prefix=${WORKDIR}=/usr/src/rbuilder-operator"
+RUSTFLAGS += "--remap-path-prefix=${WORKDIR}=/usr/src/bid-scraper"
 
 # Cargo profile settings for release builds
 # Optimize for size
@@ -99,34 +100,31 @@ do_compile:prepend() {
 }
 
 # Additional Cargo build arguments
-EXTRA_OECARGO_BUILDARGS += "--features modern --frozen"
-
-# Build only rbuilder package
-EXTRA_OECARGO_BUILDARGS += "--package rbuilder  --bin rbuilder"
+EXTRA_OECARGO_BUILDARGS += "--frozen --package bid-scraper --bin bid-scraper"
 
 do_install() {
+    # Install the service
     install -d ${D}${sysconfdir}/init.d
-    install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/rbuilder
+    install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/bid-scraper
 
     # Install the binary
     install -d ${D}${bindir}
-    install -m 0755 ${B}/${CARGO_TARGET_SUBDIR}/rbuilder ${D}${bindir}/rbuilder
+    install -m 0755 ${B}/${CARGO_TARGET_SUBDIR}/bid-scraper ${D}${bindir}/bid-scraper
 
-    # Install config files owned by root, readable by rbuilder
-    install -m 0644 ${THISDIR}/config.mustache ${D}${sysconfdir}/rbuilder.config.mustache
-    install -m 0644 ${THISDIR}/config.mustache ${D}${sysconfdir}/rbuilder.config
-    install -m 0644 ${THISDIR}/env.mustache ${D}${sysconfdir}/rbuilder.env.mustache
-
-    # Ensure rbuilder can read these files
-    chown rbuilder:rbuilder ${D}${sysconfdir}/rbuilder.config
+    # Install config files
+    install -m 0755 -o bid-scraper -g bid-scraper -d ${D}${sysconfdir}/bid-scraper
+    install -m 0644 -o bid-scraper -g bid-scraper    ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml.mustache
+    install -m 0644 -o bid-scraper -g bid-scraper    ${THISDIR}/env.mustache         ${D}${sysconfdir}/bid-scraper/env.mustache
+    install -m 0644 -o bid-scraper -g bid-scraper    /dev/null                       ${D}${sysconfdir}/bid-scraper/config.toml
+    install -m 0640 -o bid-scraper -g bid-scraper    /dev/null                       ${D}${sysconfdir}/bid-scraper/env
 }
 
 # Ensure do_install task is re-run if CARGO_TARGET_SUBDIR changes
 do_install[vardeps] += "CARGO_TARGET_SUBDIR"
 
 # Define the files to be included in the package
-FILES:${PN} += "${bindir}/rbuilder"
-FILES:${PN} += "${sysconfdir}/init.d/rbuilder"
-FILES:${PN} += "${sysconfdir}/rbuilder.config.mustache"
-FILES:${PN} += "${sysconfdir}/rbuilder.config"
-FILES:${PN} += "${sysconfdir}/rbuilder.env.mustache"
+FILES:${PN} += "${bindir}/bid-scraper"
+FILES:${PN} += "${sysconfdir}/init.d/${INITSCRIPT_NAME}"
+FILES:${PN} += "${sysconfdir}/bid-scraper/config.toml.mustache"
+FILES:${PN} += "${sysconfdir}/bid-scraper/config.toml"
+FILES:${PN} += "${sysconfdir}/bid-scraper/env.mustache"

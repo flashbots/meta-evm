@@ -21,7 +21,7 @@ RBUILDER_PERSISTENT_DIR=/persistent/rbuilder
 ETH_GROUP=eth
 RETH_DIR=/persistent/reth
 RETH_USER=reth
-ULIMIT_FD=1048576
+ULIMIT_FD=65535
 
 source /etc/rbuilder.env
 
@@ -37,7 +37,10 @@ monitor_and_restart() {
 }
 
 start_builder() {
-    start-stop-daemon -S --make-pidfile -p $PIDFILE -c $RBUILDER_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "ulimit -n $ULIMIT_FD; exec
+    ulimit -Hn "$ULIMIT_FD"
+    ulimit -Sn "$ULIMIT_FD"
+
+    start-stop-daemon -S --make-pidfile -p $PIDFILE -c $RBUILDER_USER:$ETH_GROUP -N -10 -b -a /bin/sh -- -c "exec
         ${DAEMON} run /etc/rbuilder.config \
         2>&1 | tee -a ${LOGFILE}"
 }

@@ -15,7 +15,7 @@ LOG_DIR=/var/log/containers
 LOGFILE="$LOG_DIR/rbuilder-bidding.log"
 RUN_DIR=/var/run/rbuilder
 RBUILDER_USER=rbuilder
-RBUILDER_BIDDING_VERSION=1.2.5@sha256:a5dde2887637f9abcfe703ab4abe9ea3d906f2ac65dfa4808d270b230c122713
+RBUILDER_BIDDING_VERSION=1.2.9@sha256:f99aee17d8fba7645796d2c36364cad93393467c8e3761707b568fe50311a500
 ETH_GROUP=eth
 
 source /etc/rbuilder-bidding/rbuilder-bidding-token
