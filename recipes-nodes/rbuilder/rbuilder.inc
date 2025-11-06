@@ -1,6 +1,6 @@
 SUMMARY = "Rust Builder"
 DESCRIPTION = "Rust builder running with a full ethereum node (reth) implemented in rust."
-HOMEPAGE = "https://github.com/flashbots/rbuilder-operator"
+HOMEPAGE = "https://github.com/flashbots/rbuilder"
 LICENSE="CLOSED"
 LIC_FILES_CHKSUM=""
 
