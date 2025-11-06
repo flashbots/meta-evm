@@ -1,8 +1,9 @@
 SUMMARY = "Rust Builder"
 DESCRIPTION = "Rust builder running with a full ethereum node (reth) implemented in rust."
 HOMEPAGE = "https://github.com/flashbots/rbuilder"
-LICENSE="CLOSED"
-LIC_FILES_CHKSUM=""
+LICENSE = "MIT | Apache-2.0"
+LIC_FILES_CHKSUM = "file://LICENSE-MIT;md5=4faa81fe3f8de83516cf066fcac8f951 \
+                    file://LICENSE-APACHE;md5=28f6506253cb1046c900c907426bb615"
 
 inherit cargo_bin update-rc.d useradd
 
