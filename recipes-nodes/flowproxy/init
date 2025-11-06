@@ -14,6 +14,8 @@ NAME=flowproxy
 DESC="FlowProxy"
 PIDFILE=/var/run/$NAME.pid
 LOGFILE=/var/log/$NAME.log
+FLOWPROXY_USER=flowproxy
+FLOWPROXY_GROUP=flowproxy
 ULIMIT_FD=1048576
 
 # source /etc/orderflow-proxy.conf.new
@@ -22,7 +24,7 @@ source /etc/flowproxy/env
 start() {
     echo -n "Starting $DESC: "
     echo "Starting $DESC" > /var/volatile/system-api.fifo
-    start-stop-daemon -S --make-pidfile -p $PIDFILE -m -b --exec /bin/sh -- -c "ulimit -n $ULIMIT_FD; exec $DAEMON >> $LOGFILE 2>&1"
+    start-stop-daemon -S --make-pidfile -p $PIDFILE -c $FLOWPROXY_USER:$FLOWPROXY_GROUP -m -b --exec /bin/sh -- -c "ulimit -n $ULIMIT_FD; exec $DAEMON >> $LOGFILE 2>&1"
     echo "$NAME."
 }
 
