@@ -17,20 +17,23 @@ LOGFILE=/var/log/$NAME.log
 FLOWPROXY_USER=flowproxy
 FLOWPROXY_GROUP=flowproxy
 ULIMIT_FD=1048576
+FLOWPROXY_DIR=/persistent/flowproxy
+SYSTEM_API_FIFO=/var/volatile/system-api.fifo
 
-# source /etc/orderflow-proxy.conf.new
 source /etc/flowproxy/env
 
 start() {
     echo -n "Starting $DESC: "
-    echo "Starting $DESC" > /var/volatile/system-api.fifo
+    echo "Starting $DESC" > $SYSTEM_API_FIFO
+    mkdir -p "$FLOWPROXY_DIR"
+    chown -R $FLOWPROXY_USER:$FLOWPROXY_GROUP $FLOWPROXY_DIR
     start-stop-daemon -S --make-pidfile -p $PIDFILE -c $FLOWPROXY_USER:$FLOWPROXY_GROUP -m -b --exec /bin/sh -- -c "ulimit -n $ULIMIT_FD; exec $DAEMON >> $LOGFILE 2>&1"
     echo "$NAME."
 }
 
 stop() {
     echo -n "Stopping $DESC: "
-    echo "Stopping $DESC" > /var/volatile/system-api.fifo
+    echo "Stopping $DESC" > $SYSTEM_API_FIFO
     start-stop-daemon --stop --quiet --pidfile $PIDFILE
     rm -f $PIDFILE
     echo "$NAME."
@@ -38,7 +41,7 @@ stop() {
 
 restart() {
     echo "Restarting $DESC: "
-    echo "Restarting $DESC" > /var/volatile/system-api.fifo
+    echo "Restarting $DESC" > $SYSTEM_API_FIFO
     stop
     sleep 1
     start
