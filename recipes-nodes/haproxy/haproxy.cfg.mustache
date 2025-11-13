@@ -5,6 +5,8 @@ global
   ulimit-n 32768
 
   stats socket /var/run/haproxy/admin.sock level admin mode 660
+  tune.h2.initial-window-size 1048576
+  tune.h2.fe.rxbuf 5242880
 
 defaults
   mode http
