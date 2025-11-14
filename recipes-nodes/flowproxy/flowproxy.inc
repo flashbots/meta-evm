@@ -21,7 +21,7 @@ INITSCRIPT_NAME = "flowproxy"
 INITSCRIPT_PARAMS = "defaults 98"
 
 USERADD_PACKAGES = "${PN}"
-USERADD_PARAM:${PN} = "-r -s /bin/false -G eth flowproxy"
+USERADD_PARAM:${PN} = "-r -s /bin/false flowproxy"
 
 # Specify the toolchain to use
 TOOLCHAIN = "clang"
