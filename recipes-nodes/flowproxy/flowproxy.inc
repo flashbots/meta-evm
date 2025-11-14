@@ -50,7 +50,7 @@ CARGO_HOME = "${WORKDIR}/cargo_home"
 export CARGO_HOME
 
 # Define the target subdirectory for Cargo build artifacts
-CARGO_TARGET_SUBDIR = "x86_64-unknown-linux-gnu/reproducible"
+CARGO_TARGET_SUBDIR = "x86_64-unknown-linux-gnu/release"
 
 # Python function to set SOURCE_DATE_EPOCH for reproducible builds
 python do_set_source_date_epoch() {
