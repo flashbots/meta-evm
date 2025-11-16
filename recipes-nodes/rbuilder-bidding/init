@@ -15,7 +15,7 @@ LOG_DIR=/var/log/containers
 LOGFILE="$LOG_DIR/rbuilder-bidding.log"
 RUN_DIR=/var/run/rbuilder
 RBUILDER_USER=rbuilder
-RBUILDER_BIDDING_VERSION=1.2.9@sha256:f99aee17d8fba7645796d2c36364cad93393467c8e3761707b568fe50311a500
+RBUILDER_BIDDING_VERSION=1.2.24@sha256:3a6414ecf0d950432fef838fb2b3d72814d1dba1217138df662051d8b134e5a2
 ETH_GROUP=eth
 
 source /etc/rbuilder-bidding/rbuilder-bidding-token
@@ -24,6 +24,8 @@ start_builder_bidding() {
     podman run -dt --rm --restart on-failure --name $NAME \
         -v /etc/rbuilder-bidding:/rbuilder-bidding \
         -v $RUN_DIR:$RUN_DIR \
+        -v /dev/shm:/dev/shm \
+        -v /tmp/iceoryx2:/tmp/iceoryx2 \
         --user $(id -u rbuilder):$(id -g rbuilder) \
         --log-opt path=$LOGFILE \
         --network=none \

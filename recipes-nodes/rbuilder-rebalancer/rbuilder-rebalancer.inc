@@ -1,8 +1,9 @@
-SUMMARY = "Bid Scraper"
-DESCRIPTION = "Bid scraper service"
+SUMMARY = "Rbuilder Rebalancer"
+DESCRIPTION = "Rbuilder rebalancer service"
 HOMEPAGE = "https://github.com/flashbots/rbuilder"
-LICENSE="CLOSED"
-LIC_FILES_CHKSUM=""
+LICENSE = "MIT | Apache-2.0"
+LIC_FILES_CHKSUM = "file://LICENSE-MIT;md5=4faa81fe3f8de83516cf066fcac8f951 \
+                    file://LICENSE-APACHE;md5=28f6506253cb1046c900c907426bb615"
 
 inherit cargo_bin update-rc.d useradd
 
@@ -21,11 +22,11 @@ SRC_URI += "file://config.toml.mustache"
 SRC_URI += "file://env.mustache"
 S = "${WORKDIR}/git"
 
-INITSCRIPT_NAME = "bid-scraper"
+INITSCRIPT_NAME = "rbuilder-rebalancer"
 INITSCRIPT_PARAMS = "defaults 98"
 
 USERADD_PACKAGES = "${PN}"
-USERADD_PARAM:${PN} = "-r -s /bin/false -G eth bid-scraper"
+USERADD_PARAM:${PN} = "-r -s /bin/false -G eth rbuilder-rebalancer"
 
 # Specify the toolchain to use
 TOOLCHAIN = "clang"
@@ -43,7 +44,7 @@ RUSTFLAGS += "-C link-arg=-Wl,--build-id=none"
 # Use a consistent symbol mangling version
 RUSTFLAGS += "-C symbol-mangling-version=v0"
 # Remap the build path to a generic path
-RUSTFLAGS += "--remap-path-prefix=${WORKDIR}=/usr/src/bid-scraper"
+RUSTFLAGS += "--remap-path-prefix=${WORKDIR}=/usr/src/rbuilder-rebalancer"
 
 # Cargo profile settings for release builds
 # Optimize for size
@@ -100,31 +101,31 @@ do_compile:prepend() {
 }
 
 # Additional Cargo build arguments
-EXTRA_OECARGO_BUILDARGS += "--frozen --package bid-scraper --bin bid-scraper"
+EXTRA_OECARGO_BUILDARGS += "--frozen --package rbuilder-rebalancer --bin rbuilder-rebalancer"
 
 do_install() {
     # Install the service
     install -d ${D}${sysconfdir}/init.d
-    install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/bid-scraper
+    install -m 0755 ${THISDIR}/init ${D}${sysconfdir}/init.d/rbuilder-rebalancer
 
     # Install the binary
     install -d ${D}${bindir}
-    install -m 0755 ${B}/${CARGO_TARGET_SUBDIR}/bid-scraper ${D}${bindir}/bid-scraper
+    install -m 0755 ${B}/${CARGO_TARGET_SUBDIR}/rbuilder-rebalancer ${D}${bindir}/rbuilder-rebalancer
 
     # Install config files
-    install -m 0755 -o bid-scraper -g bid-scraper -d ${D}${sysconfdir}/bid-scraper
-    install -m 0644 -o bid-scraper -g bid-scraper    ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/bid-scraper/config.toml.mustache
-    install -m 0644 -o bid-scraper -g bid-scraper    ${THISDIR}/env.mustache         ${D}${sysconfdir}/bid-scraper/env.mustache
-    install -m 0644 -o bid-scraper -g bid-scraper    /dev/null                       ${D}${sysconfdir}/bid-scraper/config.toml
-    install -m 0640 -o bid-scraper -g bid-scraper    /dev/null                       ${D}${sysconfdir}/bid-scraper/env
+    install -m 0755 -o rbuilder-rebalancer -g rbuilder-rebalancer -d ${D}${sysconfdir}/rbuilder-rebalancer
+    install -m 0644 -o rbuilder-rebalancer -g rbuilder-rebalancer    ${THISDIR}/config.toml.mustache ${D}${sysconfdir}/rbuilder-rebalancer/config.toml.mustache
+    install -m 0644 -o rbuilder-rebalancer -g rbuilder-rebalancer    ${THISDIR}/env.mustache         ${D}${sysconfdir}/rbuilder-rebalancer/env.mustache
+    install -m 0644 -o rbuilder-rebalancer -g rbuilder-rebalancer    /dev/null                       ${D}${sysconfdir}/rbuilder-rebalancer/config.toml
+    install -m 0640 -o rbuilder-rebalancer -g rbuilder-rebalancer    /dev/null                       ${D}${sysconfdir}/rbuilder-rebalancer/env
 }
 
 # Ensure do_install task is re-run if CARGO_TARGET_SUBDIR changes
 do_install[vardeps] += "CARGO_TARGET_SUBDIR"
 
 # Define the files to be included in the package
-FILES:${PN} += "${bindir}/bid-scraper"
+FILES:${PN} += "${bindir}/rbuilder-rebalancer"
 FILES:${PN} += "${sysconfdir}/init.d/${INITSCRIPT_NAME}"
-FILES:${PN} += "${sysconfdir}/bid-scraper/config.toml.mustache"
-FILES:${PN} += "${sysconfdir}/bid-scraper/config.toml"
-FILES:${PN} += "${sysconfdir}/bid-scraper/env.mustache"
+FILES:${PN} += "${sysconfdir}/rbuilder-rebalancer/config.toml.mustache"
+FILES:${PN} += "${sysconfdir}/rbuilder-rebalancer/config.toml"
+FILES:${PN} += "${sysconfdir}/rbuilder-rebalancer/env.mustache"
