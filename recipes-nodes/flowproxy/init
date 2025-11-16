@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          orderflow-proxy
+# Provides:          flowproxy
 # Required-Start:    $network $remote_fs $syslog fetch-config
 # Required-Stop:     $network $remote_fs $syslog
 # Default-Start:     2 3 4 5
@@ -9,27 +9,31 @@
 # Description:       Enable Orderflow Proxy service.
 ### END INIT INFO
 
-DAEMON=/usr/bin/orderflow-proxy
-NAME=orderflow-proxy
-DESC="Orderflow Proxy"
+DAEMON=/usr/bin/flowproxy
+NAME=flowproxy
+DESC="FlowProxy"
 PIDFILE=/var/run/$NAME.pid
 LOGFILE=/var/log/$NAME.log
+FLOWPROXY_USER=flowproxy
+FLOWPROXY_GROUP=flowproxy
 ULIMIT_FD=1048576
-OF_PROXY_DIR=/persistent/orderflow-proxy
+FLOWPROXY_DIR=/persistent/flowproxy
+SYSTEM_API_FIFO=/var/volatile/system-api.fifo
 
-source /etc/orderflow-proxy.conf
+source /etc/flowproxy/env
 
 start() {
     echo -n "Starting $DESC: "
-    echo "Starting $DESC" > /var/volatile/system-api.fifo
-    mkdir -p "$OF_PROXY_DIR"
-    start-stop-daemon -S --make-pidfile -p $PIDFILE -m -b --exec /bin/sh -- -c "ulimit -n $ULIMIT_FD; exec $DAEMON >> $LOGFILE 2>&1"
+    echo "Starting $DESC" > $SYSTEM_API_FIFO
+    mkdir -p "$FLOWPROXY_DIR"
+    chown -R $FLOWPROXY_USER:$FLOWPROXY_GROUP $FLOWPROXY_DIR
+    start-stop-daemon -S --make-pidfile -p $PIDFILE -c $FLOWPROXY_USER:$FLOWPROXY_GROUP -m -b --exec /bin/sh -- -c "ulimit -n $ULIMIT_FD; exec $DAEMON >> $LOGFILE 2>&1"
     echo "$NAME."
 }
 
 stop() {
     echo -n "Stopping $DESC: "
-    echo "Stopping $DESC" > /var/volatile/system-api.fifo
+    echo "Stopping $DESC" > $SYSTEM_API_FIFO
     start-stop-daemon --stop --quiet --pidfile $PIDFILE
     rm -f $PIDFILE
     echo "$NAME."
@@ -37,7 +41,7 @@ stop() {
 
 restart() {
     echo "Restarting $DESC: "
-    echo "Restarting $DESC" > /var/volatile/system-api.fifo
+    echo "Restarting $DESC" > $SYSTEM_API_FIFO
     stop
     sleep 1
     start
