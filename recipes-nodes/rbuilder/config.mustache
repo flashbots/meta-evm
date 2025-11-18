@@ -42,10 +42,10 @@ time_to_keep_mempool_txs_secs = {{rbuilder.time_to_keep_mempool_txs_secs}}
 watchdog_timeout_sec = {{rbuilder.watchdog_timeout_sec}}
 
 [built_blocks_clickhouse_config]
-host = {{rbuilder.clickhouse_host}}
-database = {{rbuilder.clickhouse_database}}
-username = {{rbuilder.clickhouse_username}}
-password = {{rbuilder.clickhouse_password}}
+host = "{{rbuilder.clickhouse_host}}"
+database = "{{rbuilder.clickhouse_database}}"
+username = "{{rbuilder.clickhouse_username}}"
+password = "{{rbuilder.clickhouse_password}}"
 disk_database_path = "/persistent/rbuilder/failed_clickhouse.db"
 disk_max_size_mb = 2000
 memory_max_size_mb = 1024
