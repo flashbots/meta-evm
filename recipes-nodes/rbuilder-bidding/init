@@ -41,6 +41,9 @@ start() {
     install -d -m 755 $LOG_DIR $RUN_DIR
     chown -R $RBUILDER_USER:$RBUILDER_USER $RUN_DIR
 
+    touch /tmp/iceoryx2
+    chown $RBUILDER_USER:$ETH_GROUP /tmp/iceoryx2
+
     start_builder_bidding
     chmod 644 $LOGFILE
     echo "$NAME."
