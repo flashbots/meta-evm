@@ -25,8 +25,13 @@ source /etc/flowproxy/env
 start() {
     echo -n "Starting $DESC: "
     echo "Starting $DESC" > $SYSTEM_API_FIFO
+
     mkdir -p "$FLOWPROXY_DIR"
     chown -R $FLOWPROXY_USER:$FLOWPROXY_GROUP $FLOWPROXY_DIR
+
+    touch $LOGFILE
+    chown $FLOWPROXY_USER:$FLOWPROXY_GROUP $LOGFILE
+
     start-stop-daemon -S --make-pidfile -p $PIDFILE -c $FLOWPROXY_USER:$FLOWPROXY_GROUP -m -b --exec /bin/sh -- -c "ulimit -n $ULIMIT_FD; exec $DAEMON >> $LOGFILE 2>&1"
     echo "$NAME."
 }
