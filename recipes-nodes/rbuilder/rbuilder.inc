@@ -103,7 +103,7 @@ do_compile:prepend() {
 EXTRA_OECARGO_BUILDARGS += "--features modern --frozen"
 
 # Build only rbuilder package
-EXTRA_OECARGO_BUILDARGS += "--package rbuilder  --bin rbuilder"
+EXTRA_OECARGO_BUILDARGS += "--package rbuilder-operator  --bin rbuilder-operator"
 
 do_install() {
     install -d ${D}${sysconfdir}/init.d
@@ -111,7 +111,7 @@ do_install() {
 
     # Install the binary
     install -d ${D}${bindir}
-    install -m 0755 ${B}/${CARGO_TARGET_SUBDIR}/rbuilder ${D}${bindir}/rbuilder
+    install -m 0755 ${B}/${CARGO_TARGET_SUBDIR}/rbuilder-operator ${D}${bindir}/rbuilder
 
     # Install config files owned by root, readable by rbuilder
     install -m 0644 ${THISDIR}/config.mustache ${D}${sysconfdir}/rbuilder.config.mustache
