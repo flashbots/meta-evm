@@ -27,7 +27,7 @@ source /etc/rbuilder.env
 
 monitor_and_restart() {
     while true; do
-        if ! pgrep -f "$DAEMON" > /dev/null; then
+        if ! pgrep -x "$DAEMON" > /dev/null; then
             echo "$(date): $DESC crashed. Restarting in 60 seconds..." >> ${LOGFILE_MONITOR}
             sleep 60
             start_builder
