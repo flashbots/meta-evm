@@ -100,7 +100,7 @@ stop() {
             kill -TERM $pids 2>/dev/null
 
             # Wait for processes to terminate
-            for i in $(seq 1 5); do
+            for i in $(seq 1 15); do
                 if ! kill -0 $pids 2>/dev/null; then
                     break
                 fi
