@@ -21,14 +21,18 @@ ETH_GROUP=eth
 source /etc/rbuilder-bidding/rbuilder-bidding-token
 
 start_builder_bidding() {
+    ETH_GID=$(grep '^eth:' /etc/group | cut -d: -f3)
+    RBUILDER_UID=$(id -u rbuilder)
+
     podman run -dt --rm --restart on-failure --name $NAME \
         -v /etc/rbuilder-bidding:/rbuilder-bidding \
         -v $RUN_DIR:$RUN_DIR \
         -v /dev/shm:/dev/shm \
         -v /tmp/iceoryx2:/tmp/iceoryx2 \
-        --user $(id -u rbuilder):$(id -g rbuilder) \
+        --user $RBUILDER_UID:$ETH_GID \
         --log-opt path=$LOGFILE \
         --network=none \
+        --ulimit memlock=unlimited:unlimited \
         ghcr.io/flashbots/rbuilder-bidding-service:$RBUILDER_BIDDING_VERSION /rbuilder-bidding/bidding-service.toml
 }
 
@@ -42,7 +46,6 @@ start() {
     chown -R $RBUILDER_USER:$RBUILDER_USER $RUN_DIR
 
     rm -rf /tmp/iceoryx2
-    rm -rf /dev/shm/iox2_*
 
     mkdir -p /tmp/iceoryx2
     chown $RBUILDER_USER:$ETH_GROUP /tmp/iceoryx2
