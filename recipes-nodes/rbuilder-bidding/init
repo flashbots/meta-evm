@@ -32,7 +32,6 @@ start_builder_bidding() {
         --user $RBUILDER_UID:$ETH_GID \
         --log-opt path=$LOGFILE \
         --network=none \
-        --ulimit memlock=unlimited:unlimited \
         ghcr.io/flashbots/rbuilder-bidding-service:$RBUILDER_BIDDING_VERSION /rbuilder-bidding/bidding-service.toml
 }
 
@@ -45,6 +44,7 @@ start() {
     install -d -m 755 $LOG_DIR $RUN_DIR
     chown -R $RBUILDER_USER:$RBUILDER_USER $RUN_DIR
 
+    rm -rf /dev/shm/iox2_*
     rm -rf /tmp/iceoryx2
 
     mkdir -p /tmp/iceoryx2
